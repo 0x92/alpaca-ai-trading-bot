@@ -8,6 +8,7 @@ from app.logger import get_logger
 from app.config import load_env
 from app.portfolio_manager import Portfolio, MultiPortfolioManager
 from app.reporting import export_trades_csv, generate_reports
+from app.diversification import analyze_portfolio
 
 ENV = load_env()
 API_KEY = ENV.get("ALPACA_API_KEY")
@@ -42,6 +43,10 @@ def _portfolio_snapshot():
             logger.error("Failed to get info for %s: %s", p.name, exc)
             cash = "N/A"
             value = "N/A"
+        divers = analyze_portfolio(p)
+        p.correlation_matrix = divers["matrix"]
+        p.diversification_score = divers["score"]
+        p.diversification_warnings = divers["warnings"]
         data.append({
             "name": p.name,
             "cash": cash,
@@ -51,10 +56,12 @@ def _portfolio_snapshot():
             "equity_norm": manager.get_normalized_equity(p)[-50:],
             "benchmark": bench[-50:],
             "strategy_type": p.strategy_type,
-            "risk_alerts": p.risk_alerts[-5:],
+            "risk_alerts": p.risk_alerts[-5:] + p.diversification_warnings,
             "stop_loss_pct": p.stop_loss_pct,
             "take_profit_pct": p.take_profit_pct,
             "max_drawdown_pct": p.max_drawdown_pct,
+            "diversification_score": p.diversification_score,
+            "correlation": p.correlation_matrix,
         })
     return data
 
