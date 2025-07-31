@@ -15,6 +15,7 @@ from alpaca.trading.enums import OrderSide, TimeInForce, OrderType
 from .config import load_env
 from .research_engine import get_research
 from .logger import get_logger
+from .benchmark import get_latest_benchmark_price, normalize_curve
 
 logger = get_logger(__name__)
 
@@ -104,8 +105,10 @@ def get_strategy_from_openai(
 class MultiPortfolioManager:
     """Manage multiple Portfolio instances."""
 
-    def __init__(self, portfolios: List[Portfolio] | None = None):
+    def __init__(self, portfolios: List[Portfolio] | None = None, benchmark_symbol: str = "^spx"):
         self.portfolios: List[Portfolio] = portfolios or []
+        self.benchmark_symbol = benchmark_symbol
+        self.benchmark_curve: List[Dict] = []
 
     # --- Persistence helpers -------------------------------------------------
     def load_from_file(
@@ -153,8 +156,22 @@ class MultiPortfolioManager:
         """Remove a portfolio by name."""
         self.portfolios = [p for p in self.portfolios if p.name != name]
 
+    # --- Benchmark helpers ---------------------------------------------------
+    def update_benchmark(self) -> None:
+        """Fetch latest benchmark price and append to history."""
+        data = get_latest_benchmark_price(self.benchmark_symbol)
+        if data:
+            self.benchmark_curve.append(data)
+
+    def get_normalized_benchmark(self) -> List[Dict]:
+        return normalize_curve(self.benchmark_curve)
+
+    def get_normalized_equity(self, portfolio: Portfolio) -> List[Dict]:
+        return normalize_curve(portfolio.equity_curve)
+
     def step_all(self, symbol: str = "AAPL"):
         """Get research and ask OpenAI for a trade decision for each portfolio."""
+        self.update_benchmark()
         for p in self.portfolios:
             research = get_research(symbol)
             decision = get_strategy_from_openai(p, research, p.strategy_type)

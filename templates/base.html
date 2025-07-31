@@ -13,7 +13,7 @@
         const socket = io();
         const charts = {};
 
-        function createChart(name, labels, values) {
+        function createChart(name, labels, values, benchValues) {
             const ctx = document.getElementById('chart-' + name).getContext('2d');
             charts[name] = new Chart(ctx, {
                 type: 'line',
@@ -23,6 +23,12 @@
                         label: 'Equity',
                         data: values,
                         borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }, {
+                        label: 'Benchmark',
+                        data: benchValues,
+                        borderColor: 'rgb(153, 102, 255)',
+                        borderDash: [5,5],
                         tension: 0.1
                     }]
                 },
@@ -54,13 +60,15 @@
                     });
                 }
 
-                const labels = p.equity.map(e => e.time);
-                const values = p.equity.map(e => e.value);
+                const labels = p.equity_norm.map(e => e.time);
+                const values = p.equity_norm.map(e => e.value);
+                const benchValues = p.benchmark.map(b => b.value);
                 if (!charts[p.name]) {
-                    createChart(p.name, labels, values);
+                    createChart(p.name, labels, values, benchValues);
                 } else {
                     charts[p.name].data.labels = labels;
                     charts[p.name].data.datasets[0].data = values;
+                    charts[p.name].data.datasets[1].data = benchValues;
                     charts[p.name].update();
                 }
             });

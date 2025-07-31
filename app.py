@@ -29,6 +29,8 @@ socketio = SocketIO(app, async_mode="threading")
 
 
 def _portfolio_snapshot():
+    manager.update_benchmark()
+    bench = manager.get_normalized_benchmark()
     data = []
     for p in manager.portfolios:
         try:
@@ -45,6 +47,8 @@ def _portfolio_snapshot():
             "portfolio_value": value,
             "history": p.history[-5:],
             "equity": p.equity_curve[-50:],
+            "equity_norm": manager.get_normalized_equity(p)[-50:],
+            "benchmark": bench[-50:],
             "strategy_type": p.strategy_type,
         })
     return data
