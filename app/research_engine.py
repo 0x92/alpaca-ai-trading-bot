@@ -3,6 +3,9 @@ import requests
 from textblob import TextBlob
 
 from .config import load_env
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 
 ENV = load_env()
@@ -17,8 +20,14 @@ def get_fundamentals_yahoo(symbol: str) -> dict:
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
         resp.raise_for_status()
         return resp.json()
+    except requests.exceptions.HTTPError as exc:
+        if resp.status_code == 429:
+            logger.warning("Yahoo Finance rate limit hit")
+        else:
+            logger.error("Yahoo Finance HTTP error: %s", exc)
     except Exception as exc:
-        return {"error": str(exc)}
+        logger.error("Yahoo Finance error: %s", exc)
+    return {"error": "fetch_failed"}
 
 
 def get_news_finnhub(symbol: str) -> list:
@@ -31,8 +40,13 @@ def get_news_finnhub(symbol: str) -> list:
             resp = requests.get(url, timeout=10)
             resp.raise_for_status()
             return resp.json()
-        except Exception:
-            pass
+        except requests.exceptions.HTTPError as exc:
+            if resp.status_code == 429:
+                logger.warning("Finnhub rate limit hit")
+            else:
+                logger.error("Finnhub HTTP error: %s", exc)
+        except Exception as exc:
+            logger.error("Finnhub error: %s", exc)
     if NEWS_API_KEY:
         url = (
             f"https://newsapi.org/v2/everything?q={symbol}&apiKey={NEWS_API_KEY}"
@@ -42,8 +56,13 @@ def get_news_finnhub(symbol: str) -> list:
             resp.raise_for_status()
             data = resp.json()
             return data.get("articles", [])
-        except Exception:
-            pass
+        except requests.exceptions.HTTPError as exc:
+            if resp.status_code == 429:
+                logger.warning("NewsAPI rate limit hit")
+            else:
+                logger.error("NewsAPI HTTP error: %s", exc)
+        except Exception as exc:
+            logger.error("NewsAPI error: %s", exc)
     return []
 
 
