@@ -7,12 +7,12 @@
 </form>
 <div class="space-y-4">
     {% for p in portfolios %}
-    <div class="bg-white shadow p-4 rounded">
+    <div id="portfolio-{{ p.name }}" class="bg-white shadow p-4 rounded">
         <h2 class="text-xl font-semibold">{{ p.name }}</h2>
-        <p>Cash: {{ p.cash }}</p>
-        <p>Portfolio value: {{ p.portfolio_value }}</p>
+        <p>Cash: <span class="cash">{{ p.cash }}</span></p>
+        <p>Portfolio value: <span class="portfolio_value">{{ p.portfolio_value }}</span></p>
         <h3 class="font-semibold mt-2">Trades</h3>
-        <ul class="list-disc list-inside">
+        <ul class="list-disc list-inside history">
             {% for trade in p.history %}
             <li>{{ trade.get('symbol') }} {{ trade.get('side') }} {{ trade.get('qty') }} @ {{ trade.get('submitted_at') }}</li>
             {% else %}

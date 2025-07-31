@@ -4,3 +4,4 @@ requests
 textblob
 openai
 Flask
+Flask-SocketIO

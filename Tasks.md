@@ -80,11 +80,11 @@
 
 ### Task 5: Echtzeit-Updates mit Flask-SocketIO
 
-- [ ] Integriere Flask-SocketIO in `app.py`.
-    - [ ] Sende nach jedem Portfolio-Update/Order ein `trade_update`-Event an alle Clients.
-    - [ ] Template: Füge Socket.IO-Client ein, der Events abfängt.
-    - [ ] Aktualisiere Portfolio- und Order-Listen live im Dashboard.
-- [ ] Test: Mehrere Browserfenster zeigen die Updates in Echtzeit.
+- [x] Integriere Flask-SocketIO in `app.py`.
+    - [x] Sende nach jedem Portfolio-Update/Order ein `trade_update`-Event an alle Clients.
+    - [x] Template: Füge Socket.IO-Client ein, der Events abfängt.
+    - [x] Aktualisiere Portfolio- und Order-Listen live im Dashboard.
+- [x] Test: Mehrere Browserfenster zeigen die Updates in Echtzeit.
 
 ---
 
