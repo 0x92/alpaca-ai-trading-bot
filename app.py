@@ -1,12 +1,13 @@
 from pathlib import Path
 
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, send_file
 from flask_socketio import SocketIO
 
 from app.logger import get_logger
 
 from app.config import load_env
 from app.portfolio_manager import Portfolio, MultiPortfolioManager
+from app.reporting import export_trades_csv, generate_reports
 
 ENV = load_env()
 API_KEY = ENV.get("ALPACA_API_KEY")
@@ -101,6 +102,26 @@ def delete_portfolio(name: str):
     manager.remove_portfolio(name)
     manager.save_to_file(PORTFOLIO_FILE)
     logger.info("Deleted portfolio %s", name)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/export")
+def export_trades(name: str):
+    for p in manager.portfolios:
+        if p.name == name:
+            paths = export_trades_csv([p])
+            if paths:
+                return send_file(paths[0], as_attachment=True)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/report")
+def get_report(name: str):
+    for p in manager.portfolios:
+        if p.name == name:
+            paths = generate_reports([p])
+            if paths:
+                return send_file(paths[0], as_attachment=True)
     return redirect(url_for("index"))
 
 

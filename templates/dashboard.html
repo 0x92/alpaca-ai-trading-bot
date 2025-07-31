@@ -45,7 +45,13 @@
             <li>No alerts.</li>
             {% endfor %}
         </ul>
-        <h3 class="font-semibold mt-2">Trades</h3>
+        <div class="flex items-center justify-between mt-2">
+            <h3 class="font-semibold">Trades</h3>
+            <div class="space-x-2 text-sm">
+                <a href="{{ url_for('export_trades', name=p.name) }}" class="text-blue-500">Download</a>
+                <a href="{{ url_for('get_report', name=p.name) }}" class="text-blue-500">Report</a>
+            </div>
+        </div>
         <ul class="list-disc list-inside history">
             {% for trade in p.history %}
             <li>{{ trade.get('symbol') }} {{ trade.get('side') }} {{ trade.get('qty') }} @ {{ trade.get('submitted_at') }}</li>

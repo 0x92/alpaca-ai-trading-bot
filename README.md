@@ -29,6 +29,10 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```bash
    python -m tests.risk_test
    ```
+9. Generate an example trade export and report:
+   ```bash
+   python -m tests.report_test
+   ```
 
 8. Run the Flask dashboard:
    ```bash

@@ -146,11 +146,11 @@
 
 ### Task 12: Trade-Log Export und Report-Generator
 
-- [ ] Implementiere einen Export für alle Trades (Orders) jedes Portfolios.
-    - [ ] Exporte als CSV, Excel und/oder PDF (Download-Link im Dashboard).
-    - [ ] Generiere automatisch Monats- und Jahresberichte mit Statistiken (Gewinn/Verlust, Winrate, Gebühren etc.).
+- [x] Implementiere einen Export für alle Trades (Orders) jedes Portfolios.
+    - [x] Exporte als CSV, Excel und/oder PDF (Download-Link im Dashboard).
+    - [x] Generiere automatisch Monats- und Jahresberichte mit Statistiken (Gewinn/Verlust, Winrate, Gebühren etc.).
     - [ ] Optional: Report-Versand per E-Mail.
-    - [ ] Test: Erzeuge einen Beispiel-Export und Bericht für ein Test-Portfolio.
+    - [x] Test: Erzeuge einen Beispiel-Export und Bericht für ein Test-Portfolio.
 
 ---
 
