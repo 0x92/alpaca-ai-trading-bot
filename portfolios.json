@@ -1,4 +1,12 @@
 [
-    {"name": "P1", "strategy_type": "default"},
-    {"name": "P2", "strategy_type": "default"}
+  {
+    "name": "P1",
+    "strategy_type": "momentum",
+    "custom_prompt": ""
+  },
+  {
+    "name": "P2",
+    "strategy_type": "mean_reversion",
+    "custom_prompt": ""
+  }
 ]

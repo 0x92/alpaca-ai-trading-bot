@@ -175,6 +175,148 @@
 
 ---
 
+
+Klar, hier kommen **weitere fortgeschrittene Tasks ab Task 15**, die das Dashboard richtig “next level” machen!
+Das Ziel: **Maximaler Einblick in jeden Bot und jede Position, coole Visualisierungen, Transparenz, Nutzerkomfort und “Geek Value”.**
+Alle Tasks sind so formuliert, dass sie einzeln umgesetzt werden können. Vieles davon ist auch Inspiration für späteres Premium- oder Multi-User-Feature-Set!
+
+---
+
+```markdown
+### Task 15: Live-Positionsübersicht pro Portfolio (Bot)
+
+- [ ] Baue eine Live-Ansicht aller offenen Positionen je Portfolio ins Dashboard:
+    - [ ] Symbol, Stückzahl, aktueller Kurs, durchschnittlicher Einstiegskurs, aktueller Gewinn/Verlust (absolut/relativ)
+    - [ ] Echtzeit-Update via SocketIO/Websocket
+    - [ ] Sortier- und Filteroption (z.B. nach Gewinn/Verlust)
+
+---
+
+### Task 16: Offene Trades/Orders in Echtzeit visualisieren
+
+- [ ] Zeige alle aktiven offenen Orders (pending trades) pro Portfolio übersichtlich an.
+- [ ] Visualisiere den Status (offen, ausgeführt, teilweise, abgelehnt) mit Icon/Farbe.
+- [ ] Zeige geplante Order-Strategien (z.B. Stop Loss/Take Profit) direkt im Dashboard an.
+
+---
+
+### Task 17: Trade-Historie mit erweiterten Charts
+
+- [ ] Integriere in jedem Portfolio eine Timeline (Chart.js) der durchgeführten Trades.
+- [ ] Zeige auf Klick alle Details (Order-Parameter, Zeitpunkt, Kurs, Resultat, Strategie).
+- [ ] Ermögliche einen Drill-Down von Summenstatistik → Einzeltrade-Ansicht.
+
+---
+
+### Task 18: Kurs- und Performance-Chart je Trade
+
+- [ ] Für jede offene Position zeige einen Chart (Chart.js) mit dem Kursverlauf des gehandelten Assets seit Einstieg.
+- [ ] Markiere Einstiegs- und ggf. Ausstiegspunkte, Stop-Loss/Take-Profit-Linien.
+- [ ] Visualisiere den aktuellen Gewinn/Verlust live im Chart.
+
+---
+
+### Task 19: Investitionsübersicht & Asset-Allokation
+
+- [ ] Zeige pro Bot ein “Investment Breakdown” als Tortendiagramm (Pie Chart):
+    - [ ] Prozentuale/absolute Verteilung aller investierten Mittel auf die einzelnen Assets
+    - [ ] Hebe große Positionen oder Klumpenrisiken visuell hervor.
+
+---
+
+### Task 20: Gewinn/Verlust-Diagramme (PnL Analysis)
+
+- [ ] Zeige pro Bot folgende Diagramme:
+    - [ ] Tages- und Wochenergebnis (PnL) als Liniendiagramm
+    - [ ] Historische Gesamtperformance (Equity Curve)
+    - [ ] Top/Flop-Trades nach Gewinn/Verlust (Bar Chart)
+- [ ] Ermögliche den Zeitraum zu filtern (Tag, Woche, Monat, Gesamt).
+
+---
+
+### Task 21: Aktivitätsfeed & Log-Viewer
+
+- [ ] Integriere einen Feed, der alle Aktionen des Bots chronologisch auflistet:
+    - [ ] Trades, Orderplatzierungen, Research-Events, Strategie-Wechsel
+    - [ ] Live-Updates ohne Reload (SocketIO)
+    - [ ] Filter nach Typ (nur Trades, nur Warnungen, nur Systeminfos)
+
+---
+
+### Task 22: Bot-KI-Entscheidungen transparent machen (Decision-Explainer)
+
+- [ ] Füge einen “Warum hat der Bot das gemacht?”-Button hinzu:
+    - [ ] Zeige für jede Aktion die genutzte Strategie und das OpenAI-Prompt inkl. Antwort.
+    - [ ] Optional: Visualisiere welche Research-Daten zu dieser Entscheidung geführt haben.
+    - [ ] “KI-Logbuch” pro Bot anlegen.
+
+---
+
+### Task 23: Alerts und Schwellenwert-Warnungen
+
+- [ ] Implementiere ein Alert-System:
+    - [ ] Gewinn/Verlust-Thresholds pro Trade/Portfolio einstellbar (z.B. Alarm bei -10% Drawdown)
+    - [ ] Visuelle und akustische Warnungen im Dashboard
+    - [ ] Optionale Benachrichtigungen per E-Mail/Push
+
+---
+
+### Task 24: User-Notizen & Tagging pro Trade
+
+- [ ] Erlaube dem Nutzer zu jedem Trade/Position/Portfolio eigene Notizen zu hinterlegen.
+- [ ] Trades können mit Tags (z.B. “Momentum”, “News”, “KI-Tipp”) versehen werden.
+- [ ] Tags und Notizen im UI und Export anzeigen.
+
+---
+
+### Task 25: Multi-Dashboard-View & Bot-Vergleich
+
+- [ ] Erlaube die parallele Anzeige mehrerer Dashboards (z.B. Split View für 2 Bots)
+    - [ ] Direktvergleich wichtiger Kennzahlen (Gewinn/Verlust, Allokation, Risikolevel)
+    - [ ] Heatmap: Welcher Bot performt am besten?
+
+---
+
+### Task 26: Export aller Dashboard-Daten
+
+- [ ] Exportiere den aktuellen Zustand aller Dashboards (als CSV, JSON, PDF)
+- [ ] Exportoption für einzelne Charts, Tabellen, Trade-Logs, Aktivitätsfeeds
+
+---
+
+### Task 27: Dark Mode & Custom Themes
+
+- [ ] Ermögliche einen Dark Mode und mehrere Color Themes für das Dashboard.
+- [ ] Speichere die Einstellung im User-Profil / Browser Storage
+
+---
+
+### Task 28: Realtime-Benchmark-Overlay
+
+- [ ] Zeige pro Asset und Portfolio einen Overlay-Linienchart, der die eigene Performance mit dem Marktindex (S&P500, DAX, BTC etc.) live vergleicht
+
+---
+
+### Task 29: Mobile-optimierte Dashboard-Ansicht
+
+- [ ] Responsive Redesign aller Dashboards und Charts
+- [ ] Touch-freundliche Bedienung
+- [ ] Mobile-spezifische Features wie “Swipe zum Portfolio-Wechsel”
+
+---
+
+### Task 30: Advanced-Analytics & “What-If”-Simulation
+
+- [ ] Simuliere, wie sich der Gewinn/Verlust entwickelt hätte, wenn der Bot anders entschieden hätte (“What-If-Mode”)
+- [ ] Szenarien vergleichbar anzeigen (z.B. Buy&Hold, KI, Zufall)
+- [ ] Visualisierung der Ergebnisse als Overlay/Chart
+
+---
+```
+
+**Jeder Task ist optional und kann als Epic, Feature, oder einzelne Issues/Stories behandelt werden!**
+Wenn du für einen Task konkrete Subtasks, Beispiel-UI, ein Issue-Template oder eine Architektur-Skizze willst, sag einfach Bescheid.
+
 ## Quickstart & Testing
 
 - [ ] Installiere Requirements (`pip install -r requirements.txt`).
