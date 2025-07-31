@@ -11,6 +11,9 @@
         <h2 class="text-xl font-semibold">{{ p.name }}</h2>
         <p>Cash: <span class="cash">{{ p.cash }}</span></p>
         <p>Portfolio value: <span class="portfolio_value">{{ p.portfolio_value }}</span></p>
+        <div class="h-48">
+            <canvas id="chart-{{ p.name }}"></canvas>
+        </div>
         <h3 class="font-semibold mt-2">Trades</h3>
         <ul class="list-disc list-inside history">
             {% for trade in p.history %}
@@ -22,4 +25,5 @@
     </div>
     {% endfor %}
 </div>
+<script id="initial-data" type="application/json">{{ portfolios | tojson }}</script>
 {% endblock %}

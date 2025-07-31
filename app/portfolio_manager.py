@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from typing import List, Dict
+from datetime import datetime
 
 import openai
 
@@ -26,6 +27,7 @@ class Portfolio:
     secret_key: str
     base_url: str
     history: List[Dict] = field(default_factory=list)
+    equity_curve: List[Dict] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         paper = "paper" in self.base_url
@@ -37,7 +39,11 @@ class Portfolio:
         """Return basic account information as a dictionary."""
         account = self.client.get_account()
         # `model_dump` returns a dictionary on pydantic models
-        return account.model_dump()
+        info = account.model_dump()
+        value = info.get("portfolio_value")
+        if value is not None:
+            self.equity_curve.append({"time": datetime.utcnow().isoformat(), "value": float(value)})
+        return info
 
     def place_order(self, symbol: str, qty: float, side: str = "buy"):
         """Place a market order and store it in history."""
@@ -104,4 +110,9 @@ class MultiPortfolioManager:
                     p.place_order(symbol, 1, "sell")
                 except Exception as exc:
                     print(f"Failed to place order for {p.name}: {exc}")
+            # record latest account value
+            try:
+                p.get_account_info()
+            except Exception:
+                pass
 
