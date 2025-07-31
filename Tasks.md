@@ -100,11 +100,11 @@
 
 ### Task 7: Strategie pro Portfolio steuerbar machen
 
-- [ ] Erweitere `Portfolio` um ein Attribut `strategy_type`.
-- [ ] Im Dashboard: Dropdown für Strategieauswahl je Portfolio.
-    - [ ] Neue Route `/portfolio/<name>/set_strategy` im Backend.
-    - [ ] Nach Änderung wird beim nächsten Schritt die neue Strategie genutzt.
-- [ ] Test: Verschiedene Strategien führen zu unterschiedlichem Trading-Verhalten.
+- [x] Erweitere `Portfolio` um ein Attribut `strategy_type`.
+- [x] Im Dashboard: Dropdown für Strategieauswahl je Portfolio.
+    - [x] Neue Route `/portfolio/<name>/set_strategy` im Backend.
+    - [x] Nach Änderung wird beim nächsten Schritt die neue Strategie genutzt.
+- [x] Test: Verschiedene Strategien führen zu unterschiedlichem Trading-Verhalten.
 
 ---
 

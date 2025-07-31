@@ -26,6 +26,7 @@ class Portfolio:
     api_key: str
     secret_key: str
     base_url: str
+    strategy_type: str = "default"
     history: List[Dict] = field(default_factory=list)
     equity_curve: List[Dict] = field(default_factory=list)
 
@@ -94,11 +95,11 @@ class MultiPortfolioManager:
     def add_portfolio(self, portfolio: Portfolio) -> None:
         self.portfolios.append(portfolio)
 
-    def step_all(self, symbol: str = "AAPL", strategy_type: str = "default"):
+    def step_all(self, symbol: str = "AAPL"):
         """Get research and ask OpenAI for a trade decision for each portfolio."""
         for p in self.portfolios:
             research = get_research(symbol)
-            decision = get_strategy_from_openai(p, research, strategy_type)
+            decision = get_strategy_from_openai(p, research, p.strategy_type)
             print(p.name, "decision", decision)
             if decision.lower().startswith("buy"):
                 try:

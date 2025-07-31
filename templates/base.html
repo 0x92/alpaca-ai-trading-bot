@@ -38,6 +38,8 @@
             data.forEach(p => {
                 const el = document.getElementById('portfolio-' + p.name);
                 if (!el) return;
+                const select = el.querySelector('select[name="strategy_type"]');
+                if (select) select.value = p.strategy_type;
                 el.querySelector('.cash').textContent = p.cash;
                 el.querySelector('.portfolio_value').textContent = p.portfolio_value;
                 const historyList = el.querySelector('.history');
