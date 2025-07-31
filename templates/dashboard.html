@@ -37,6 +37,21 @@
         <div class="h-48">
             <canvas id="chart-{{ p.name }}"></canvas>
         </div>
+        <p class="mt-2">Diversification score: <span class="divscore">{{ p.diversification_score }}</span></p>
+        <div class="mt-2">
+            <table class="text-xs border" id="corr-{{ p.name }}">
+                <tbody>
+                    {% for row_sym, cols in p.correlation.items() %}
+                    <tr>
+                        <th class="border px-1">{{ row_sym }}</th>
+                        {% for col_sym, val in cols.items() %}
+                        <td class="border px-1">{{ '%.2f' % val }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <h3 class="font-semibold mt-2">Risk Alerts</h3>
         <ul class="list-disc list-inside risk_alerts">
             {% for alert in p.risk_alerts %}

@@ -156,12 +156,12 @@
 
 ### Task 13: Visualisierung von Correlation & Diversifikation
 
-- [ ] Analysiere die Korrelation zwischen gehaltenen Assets (auf Basis historischer Kursdaten).
-    - [ ] Baue eine Heatmap oder Korrelationsmatrix (z.B. mit Plotly, Chart.js oder D3.js).
-    - [ ] Berechne und visualisiere einen Diversifikations-Score pro Portfolio.
-    - [ ] Warne bei Klumpenrisiken (z.B. zu hoher Anteil eines Assets).
-    - [ ] Zeige die Visualisierungen im Dashboard.
-    - [ ] Test: Lege ein Portfolio mit stark korrelierten Assets an und prüfe die Anzeige.
+- [x] Analysiere die Korrelation zwischen gehaltenen Assets (auf Basis historischer Kursdaten).
+    - [x] Baue eine Heatmap oder Korrelationsmatrix (z.B. mit Plotly, Chart.js oder D3.js).
+    - [x] Berechne und visualisiere einen Diversifikations-Score pro Portfolio.
+    - [x] Warne bei Klumpenrisiken (z.B. zu hoher Anteil eines Assets).
+    - [x] Zeige die Visualisierungen im Dashboard.
+    - [x] Test: Lege ein Portfolio mit stark korrelierten Assets an und prüfe die Anzeige.
 
 ---
 

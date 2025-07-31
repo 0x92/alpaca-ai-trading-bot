@@ -48,6 +48,8 @@
                 if (select) select.value = p.strategy_type;
                 el.querySelector('.cash').textContent = p.cash;
                 el.querySelector('.portfolio_value').textContent = p.portfolio_value;
+                const divScoreEl = el.querySelector('.divscore');
+                if (divScoreEl) divScoreEl.textContent = p.diversification_score;
                 const historyList = el.querySelector('.history');
                 historyList.innerHTML = '';
                 if (p.history.length === 0) {
@@ -72,6 +74,27 @@
                             alertList.appendChild(item);
                         });
                     }
+                }
+
+                const corrTable = el.querySelector('#corr-' + p.name);
+                if (corrTable) {
+                    const body = corrTable.querySelector('tbody');
+                    body.innerHTML = '';
+                    Object.keys(p.correlation).forEach(rowSym => {
+                        const row = document.createElement('tr');
+                        const th = document.createElement('th');
+                        th.textContent = rowSym;
+                        th.className = 'border px-1';
+                        row.appendChild(th);
+                        const cols = p.correlation[rowSym];
+                        Object.keys(cols).forEach(colSym => {
+                            const td = document.createElement('td');
+                            td.className = 'border px-1';
+                            td.textContent = cols[colSym].toFixed(2);
+                            row.appendChild(td);
+                        });
+                        body.appendChild(row);
+                    });
                 }
 
                 const labels = p.equity_norm.map(e => e.time);

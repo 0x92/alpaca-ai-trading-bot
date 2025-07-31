@@ -5,3 +5,4 @@ textblob
 openai
 Flask
 Flask-SocketIO
+pandas

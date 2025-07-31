@@ -20,6 +20,7 @@ from .benchmark import (
     get_latest_price,
     normalize_curve,
 )
+from .diversification import analyze_portfolio
 
 logger = get_logger(__name__)
 
@@ -45,6 +46,9 @@ class Portfolio:
     holdings: Dict[str, float] = field(default_factory=dict)
     avg_prices: Dict[str, float] = field(default_factory=dict)
     risk_alerts: List[str] = field(default_factory=list)
+    correlation_matrix: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    diversification_score: float = 0.0
+    diversification_warnings: List[str] = field(default_factory=list)
     initial_value: float | None = None
     high_water: float = 0.0
 
