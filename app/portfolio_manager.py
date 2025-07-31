@@ -1,11 +1,20 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import List, Dict
+
+import openai
 
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce, OrderType
+
+from .config import load_env
+from .research_engine import get_research
+
+ENV = load_env()
+openai.api_key = ENV.get("OPENAI_API_KEY")
 
 
 @dataclass
@@ -45,6 +54,31 @@ class Portfolio:
         return order
 
 
+def get_strategy_from_openai(
+    portfolio: Portfolio, research: dict, strategy_type: str = "default"
+) -> str:
+    """Return a trading instruction string from OpenAI."""
+    if not openai.api_key or "your_openai_api_key" in openai.api_key:
+        return f"no_api_key_for_{strategy_type}"
+
+    account = portfolio.get_account_info()
+    prompt = (
+        "Provide a short trading decision (buy/sell/hold) for the next step.\n"
+        f"Strategy: {strategy_type}\n"
+        f"Portfolio: {json.dumps(account)}\n"
+        f"Research: {json.dumps(research)}"
+    )
+    try:
+        resp = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+        )
+        return resp["choices"][0]["message"]["content"].strip()
+    except Exception as exc:
+        return f"error: {exc}"
+
+
 class MultiPortfolioManager:
     """Manage multiple Portfolio instances."""
 
@@ -54,13 +88,20 @@ class MultiPortfolioManager:
     def add_portfolio(self, portfolio: Portfolio) -> None:
         self.portfolios.append(portfolio)
 
-    def step_all(self):
-        """Execute a dummy trade for all portfolios."""
+    def step_all(self, symbol: str = "AAPL", strategy_type: str = "default"):
+        """Get research and ask OpenAI for a trade decision for each portfolio."""
         for p in self.portfolios:
-            # simple dummy: place a single share order for AAPL
-            try:
-                p.place_order("AAPL", 1)
-            except Exception as exc:
-                # In a real system, logging should be used
-                print(f"Failed to place order for {p.name}: {exc}")
+            research = get_research(symbol)
+            decision = get_strategy_from_openai(p, research, strategy_type)
+            print(p.name, "decision", decision)
+            if decision.lower().startswith("buy"):
+                try:
+                    p.place_order(symbol, 1, "buy")
+                except Exception as exc:
+                    print(f"Failed to place order for {p.name}: {exc}")
+            elif decision.lower().startswith("sell"):
+                try:
+                    p.place_order(symbol, 1, "sell")
+                except Exception as exc:
+                    print(f"Failed to place order for {p.name}: {exc}")
 

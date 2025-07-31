@@ -21,3 +21,7 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```bash
    python research_test.py
    ```
+6. Try the OpenAI strategy demo:
+   ```bash
+   python strategy_test.py
+   ```
