@@ -1,0 +1,196 @@
+# Tasks.md — Multi-Portfolio Alpaca Trading Simulator (from scratch)
+
+## Epic: Multi-Portfolio Trading Simulator mit OpenAI-Research, Realtime-Dashboard & Strategie-Management
+
+---
+
+### Task 0: Projektstruktur, .gitignore und .env Setup
+
+- [ ] Lege die grundlegende Projektstruktur an:
+    - [ ] Hauptverzeichnis, z.B. `alpaca-trading-sim/`
+    - [ ] Unterordner:
+        - [ ] `app/` (für Python-Module)
+        - [ ] `templates/` (für Flask-Templates)
+        - [ ] `static/` (für JS, CSS, ggf. Chart.js)
+        - [ ] `tests/` (optional für Unit-Tests)
+    - [ ] Wichtige Files:
+        - [ ] `app/__init__.py`
+        - [ ] `requirements.txt`
+        - [ ] `README.md`
+        - [ ] `.gitignore`
+        - [ ] `.env.example` und `.env`
+- [ ] Erstelle eine sinnvolle `.gitignore`, z.B.:
+    - `.env`
+    - `__pycache__/`
+    - `.vscode/`
+    - `*.pyc`
+    - `*.db`
+- [ ] Erstelle eine `.env.example` mit Platzhaltern für alle benötigten Secrets (API-Keys etc.).
+- [ ] Implementiere das Laden von Umgebungsvariablen in Python (`python-dotenv` oder `os.environ`).
+- [ ] Test: Einlesen von Keys aus der `.env` in einer Beispieldatei (z.B. `print(os.environ.get("ALPACA_API_KEY"))`).
+
+---
+
+### Task 1: Basis-Modul `portfolio_manager.py` anlegen
+
+- [ ] Erstelle das Python-Modul `portfolio_manager.py` im `app/`-Ordner.
+    - [ ] Implementiere die Klasse `Portfolio`:
+        - [ ] Konstruktor mit Name, Alpaca-API-Key, Secret, Base-URL.
+        - [ ] Methode `get_account_info()` für Account-Status.
+        - [ ] Methode `place_order()` für Market-Orders.
+        - [ ] Member `history` für Order-Historie.
+    - [ ] Implementiere die Klasse `MultiPortfolioManager`:
+        - [ ] Verwaltung mehrerer Portfolios.
+        - [ ] Methode `step_all()` für Trades über alle Portfolios (zunächst Dummy-Entscheidung).
+- [ ] Test: Lege 2 Test-Portfolios an, prüfe Account-Info und platziere eine Beispiel-Order (Paper API).
+
+---
+
+### Task 2: Research-Engine bauen (Yahoo Finance, Finnhub, NewsAPI)
+
+- [ ] Erstelle das Modul `research_engine.py` im `app/`-Ordner mit folgenden Funktionen:
+    - [ ] `get_fundamentals_yahoo(symbol)`
+    - [ ] `get_news_finnhub(symbol)`
+    - [ ] `analyze_sentiment(news_items)`
+    - [ ] `get_research(symbol)` (Kombiniert alles zu JSON)
+- [ ] Test: Gebe für ein Beispiel-Symbol das Research-JSON aus.
+
+---
+
+### Task 3: OpenAI-Strategie in `portfolio_manager.py` integrieren
+
+- [ ] Überarbeite `portfolio_manager.py`:
+    - [ ] Importiere das Research-Modul.
+    - [ ] Implementiere `get_strategy_from_openai(portfolio, research, strategy_type)`.
+    - [ ] Prompt soll Portfolio-Status, Research-JSON und Strategie-Typ enthalten.
+    - [ ] Die Methode `step_all()` soll Research holen und an OpenAI geben.
+- [ ] Test: Lass für mehrere Strategien mit gleichem Portfolio verschiedene Entscheidungen ausgeben.
+
+---
+
+### Task 4: Flask-Webdashboard Grundgerüst
+
+- [ ] Erstelle das Flask-App-Modul `app.py` im Hauptverzeichnis:
+    - [ ] Dashboard mit Übersicht aller Portfolios (Name, Cash, Portfolio-Wert, letzte Trades).
+    - [ ] Template mit Tailwind CSS für grundlegendes UI.
+    - [ ] Button "Step" für einen Simulationsschritt.
+- [ ] Test: Portfolios und ihre Orders werden im Browser korrekt angezeigt.
+
+---
+
+### Task 5: Echtzeit-Updates mit Flask-SocketIO
+
+- [ ] Integriere Flask-SocketIO in `app.py`.
+    - [ ] Sende nach jedem Portfolio-Update/Order ein `trade_update`-Event an alle Clients.
+    - [ ] Template: Füge Socket.IO-Client ein, der Events abfängt.
+    - [ ] Aktualisiere Portfolio- und Order-Listen live im Dashboard.
+- [ ] Test: Mehrere Browserfenster zeigen die Updates in Echtzeit.
+
+---
+
+### Task 6: Chart.js für Order-Historie und Equity Curve
+
+- [ ] Baue im Dashboard ein Chart.js-Linechart für Portfolio-Equity (Wertentwicklung).
+    - [ ] Backend: Zeitreihe für Equity vorbereiten und ans Template geben.
+    - [ ] Chart aktualisiert sich automatisch bei neuem Data-Update (über Sockets oder AJAX).
+- [ ] Optional: Pie-Chart für Holdings.
+- [ ] Test: Mehrere Trades, Entwicklung wird als Chart angezeigt.
+
+---
+
+### Task 7: Strategie pro Portfolio steuerbar machen
+
+- [ ] Erweitere `Portfolio` um ein Attribut `strategy_type`.
+- [ ] Im Dashboard: Dropdown für Strategieauswahl je Portfolio.
+    - [ ] Neue Route `/portfolio/<name>/set_strategy` im Backend.
+    - [ ] Nach Änderung wird beim nächsten Schritt die neue Strategie genutzt.
+- [ ] Test: Verschiedene Strategien führen zu unterschiedlichem Trading-Verhalten.
+
+---
+
+### Task 8: (Optional) Portfolio-Management UI & User-Flows
+
+- [ ] Möglichkeit, neue Portfolios im Dashboard anzulegen/löschen.
+- [ ] Übersicht über alle Portfolios und ihre Strategien.
+- [ ] Persistenz in SQLite oder JSON.
+
+---
+
+### Task 9: (Optional) Security & Error Handling
+
+- [ ] API Keys/Secrets niemals an den Client geben.
+- [ ] Fehler und Rate Limits sauber behandeln und loggen.
+
+---
+
+### Task 10: Performance-Benchmarks & Vergleich (z.B. S&P500, DAX)
+
+- [ ] Baue eine Vergleichsfunktion, die die Performance jedes Portfolios automatisch mit mindestens einem Index (z.B. S&P500, DAX) vergleicht.
+    - [ ] Hole historische und aktuelle Daten der Benchmarks per API (z.B. Yahoo Finance, Alpha Vantage).
+    - [ ] Berechne Out- und Underperformance jedes Portfolios vs. Benchmarks (ab Startzeitpunkt).
+    - [ ] Visualisiere die Performance-Vergleiche als Chart im Dashboard.
+    - [ ] Test: Zeige für mindestens zwei Portfolios und einen Index den Performance-Vergleich an.
+
+---
+
+### Task 11: Intelligentes Positions- und Risikomanagement
+
+- [ ] Implementiere Risiko-Features pro Portfolio:
+    - [ ] Setze Stop-Loss, Take-Profit, Max-Drawdown-Limits (einstellbar pro Portfolio).
+    - [ ] Bei Überschreiten automatisches Schließen von Positionen oder Warnmeldungen.
+    - [ ] Ergänze einen “Smart Allocator” für Positionsgrößen anhand Risikoniveau und/oder KI-Empfehlung.
+    - [ ] Visualisiere Risikostatus und Alarme im Dashboard.
+    - [ ] Test: Simuliere einen Drawdown und prüfe, ob korrekt reagiert wird.
+
+---
+
+### Task 12: Trade-Log Export und Report-Generator
+
+- [ ] Implementiere einen Export für alle Trades (Orders) jedes Portfolios.
+    - [ ] Exporte als CSV, Excel und/oder PDF (Download-Link im Dashboard).
+    - [ ] Generiere automatisch Monats- und Jahresberichte mit Statistiken (Gewinn/Verlust, Winrate, Gebühren etc.).
+    - [ ] Optional: Report-Versand per E-Mail.
+    - [ ] Test: Erzeuge einen Beispiel-Export und Bericht für ein Test-Portfolio.
+
+---
+
+### Task 13: Visualisierung von Correlation & Diversifikation
+
+- [ ] Analysiere die Korrelation zwischen gehaltenen Assets (auf Basis historischer Kursdaten).
+    - [ ] Baue eine Heatmap oder Korrelationsmatrix (z.B. mit Plotly, Chart.js oder D3.js).
+    - [ ] Berechne und visualisiere einen Diversifikations-Score pro Portfolio.
+    - [ ] Warne bei Klumpenrisiken (z.B. zu hoher Anteil eines Assets).
+    - [ ] Zeige die Visualisierungen im Dashboard.
+    - [ ] Test: Lege ein Portfolio mit stark korrelierten Assets an und prüfe die Anzeige.
+
+---
+
+### Task 14: Strategie-Editor mit Custom Prompts (No-Code-Editor für OpenAI-Trading-Strategien)
+
+- [ ] Entwickle einen Editor im Dashboard, mit dem User eigene OpenAI-Prompts/Strategie-Templates konfigurieren können (ohne Programmierung).
+    - [ ] Speichere die Prompts pro Portfolio in der Datenbank oder als JSON.
+    - [ ] Validierung der Eingaben, Vorschau auf das Resultat.
+    - [ ] Binde die Custom-Prompts in die Entscheidungslogik ein, sodass bei jedem Trade der gewählte Prompt genutzt wird.
+    - [ ] Test: Definiere einen eigenen Prompt und führe Trades danach aus.
+
+---
+
+## Quickstart & Testing
+
+- [ ] Installiere Requirements (`pip install -r requirements.txt`).
+- [ ] Lege API-Keys für Alpaca (Paper), Yahoo/Finnhub/NewsAPI, OpenAI in der `.env` an.
+- [ ] Starte lokal: Das Dashboard zeigt Portfolios und Orders, Trades laufen simuliert ab.
+
+---
+
+## Stretch Goals / Nice-to-have
+
+- [ ] Backtesting für Strategien.
+- [ ] AutoML-Tuning für KI-Strategien.
+- [ ] Mobile-optimiertes UI.
+
+---
+
+**Hinweis:**  
+Jede Task ist für Coding-Agents einzeln und unabhängig bearbeitbar!  
+Mit Task 0 starten, dann Schritt für Schritt weiter — Abhängigkeiten beachten.
