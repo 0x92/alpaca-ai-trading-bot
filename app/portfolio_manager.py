@@ -14,6 +14,9 @@ from alpaca.trading.enums import OrderSide, TimeInForce, OrderType
 
 from .config import load_env
 from .research_engine import get_research
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 ENV = load_env()
 openai.api_key = ENV.get("OPENAI_API_KEY")
@@ -39,13 +42,16 @@ class Portfolio:
 
     def get_account_info(self):
         """Return basic account information as a dictionary."""
-        account = self.client.get_account()
-        # `model_dump` returns a dictionary on pydantic models
-        info = account.model_dump()
-        value = info.get("portfolio_value")
-        if value is not None:
-            self.equity_curve.append({"time": datetime.utcnow().isoformat(), "value": float(value)})
-        return info
+        try:
+            account = self.client.get_account()
+            info = account.model_dump()
+            value = info.get("portfolio_value")
+            if value is not None:
+                self.equity_curve.append({"time": datetime.utcnow().isoformat(), "value": float(value)})
+            return info
+        except Exception as exc:
+            logger.error("Failed to get account info for %s: %s", self.name, exc)
+            return {}
 
     def place_order(self, symbol: str, qty: float, side: str = "buy"):
         """Place a market order and store it in history."""
@@ -57,9 +63,13 @@ class Portfolio:
             type=OrderType.MARKET,
             time_in_force=TimeInForce.DAY,
         )
-        order = self.client.submit_order(order_data)
-        self.history.append(order.model_dump())
-        return order
+        try:
+            order = self.client.submit_order(order_data)
+            self.history.append(order.model_dump())
+            return order
+        except Exception as exc:
+            logger.error("Order failed for %s: %s", self.name, exc)
+            raise
 
 
 def get_strategy_from_openai(
@@ -83,7 +93,11 @@ def get_strategy_from_openai(
             temperature=0,
         )
         return resp["choices"][0]["message"]["content"].strip()
+    except openai.error.RateLimitError:
+        logger.warning("OpenAI rate limit reached for %s", portfolio.name)
+        return "rate_limit"
     except Exception as exc:
+        logger.error("OpenAI error for %s: %s", portfolio.name, exc)
         return f"error: {exc}"
 
 
@@ -144,20 +158,20 @@ class MultiPortfolioManager:
         for p in self.portfolios:
             research = get_research(symbol)
             decision = get_strategy_from_openai(p, research, p.strategy_type)
-            print(p.name, "decision", decision)
+            logger.info("%s decision %s", p.name, decision)
             if decision.lower().startswith("buy"):
                 try:
                     p.place_order(symbol, 1, "buy")
                 except Exception as exc:
-                    print(f"Failed to place order for {p.name}: {exc}")
+                    logger.error("Failed to place order for %s: %s", p.name, exc)
             elif decision.lower().startswith("sell"):
                 try:
                     p.place_order(symbol, 1, "sell")
                 except Exception as exc:
-                    print(f"Failed to place order for {p.name}: {exc}")
+                    logger.error("Failed to place order for %s: %s", p.name, exc)
             # record latest account value
             try:
                 p.get_account_info()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.error("Failed to fetch account info for %s: %s", p.name, exc)
 

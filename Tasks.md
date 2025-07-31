@@ -118,8 +118,8 @@
 
 ### Task 9: (Optional) Security & Error Handling
 
-- [ ] API Keys/Secrets niemals an den Client geben.
-- [ ] Fehler und Rate Limits sauber behandeln und loggen.
+- [x] API Keys/Secrets niemals an den Client geben.
+- [x] Fehler und Rate Limits sauber behandeln und loggen.
 
 ---
 
