@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for
+from flask_socketio import SocketIO
 
 from app.config import load_env
 from app.portfolio_manager import Portfolio, MultiPortfolioManager
@@ -16,6 +17,7 @@ if API_KEY and "your_alpaca_api_key" not in API_KEY:
     manager.add_portfolio(Portfolio("P2", API_KEY, SECRET_KEY, BASE_URL))
 
 app = Flask(__name__)
+socketio = SocketIO(app, async_mode="threading")
 
 
 def _portfolio_snapshot():
@@ -46,8 +48,10 @@ def index():
 @app.route("/step", methods=["POST"])
 def step():
     manager.step_all()
+    portfolios = _portfolio_snapshot()
+    socketio.emit("trade_update", portfolios, broadcast=True)
     return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
