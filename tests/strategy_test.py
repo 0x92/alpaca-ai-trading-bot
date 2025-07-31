@@ -1,6 +1,5 @@
 from app.config import load_env
-from app.portfolio_manager import Portfolio, get_strategy_from_openai
-from app.research_engine import get_research
+from app.portfolio_manager import Portfolio, MultiPortfolioManager
 
 
 def main():
@@ -14,12 +13,12 @@ def main():
         print("No Alpaca API keys provided. Skipping strategy test.")
         return
 
-    p = Portfolio("Test", api_key, secret_key, base_url)
-    research = get_research("AAPL")
-    strat1 = get_strategy_from_openai(p, research, "momentum")
-    strat2 = get_strategy_from_openai(p, research, "mean_reversion")
-    print("momentum:", strat1)
-    print("mean_reversion:", strat2)
+    p1 = Portfolio("Momentum", api_key, secret_key, base_url, "momentum")
+    p2 = Portfolio("MeanRev", api_key, secret_key, base_url, "mean_reversion")
+    manager = MultiPortfolioManager([p1, p2])
+    manager.step_all("AAPL")
+    for p in manager.portfolios:
+        print(p.name, p.strategy_type, "trades", len(p.history))
 
 
 if __name__ == "__main__":

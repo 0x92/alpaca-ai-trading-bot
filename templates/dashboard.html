@@ -9,6 +9,15 @@
     {% for p in portfolios %}
     <div id="portfolio-{{ p.name }}" class="bg-white shadow p-4 rounded">
         <h2 class="text-xl font-semibold">{{ p.name }}</h2>
+        <form method="post" action="{{ url_for('set_strategy', name=p.name) }}" class="my-2">
+            <label class="text-sm">Strategy:
+                <select name="strategy_type" onchange="this.form.submit()" class="border rounded px-1 py-0">
+                    {% for s in ['default', 'momentum', 'mean_reversion'] %}
+                    <option value="{{ s }}" {% if p.strategy_type == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </form>
         <p>Cash: <span class="cash">{{ p.cash }}</span></p>
         <p>Portfolio value: <span class="portfolio_value">{{ p.portfolio_value }}</span></p>
         <div class="h-48">

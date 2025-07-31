@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_socketio import SocketIO
 
 from app.config import load_env
@@ -36,6 +36,7 @@ def _portfolio_snapshot():
             "portfolio_value": value,
             "history": p.history[-5:],
             "equity": p.equity_curve[-50:],
+            "strategy_type": p.strategy_type,
         })
     return data
 
@@ -51,6 +52,16 @@ def step():
     manager.step_all()
     portfolios = _portfolio_snapshot()
     socketio.emit("trade_update", portfolios, broadcast=True)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/set_strategy", methods=["POST"])
+def set_strategy(name: str):
+    strategy = request.form.get("strategy_type", "default")
+    for p in manager.portfolios:
+        if p.name == name:
+            p.strategy_type = strategy
+            break
     return redirect(url_for("index"))
 
 
