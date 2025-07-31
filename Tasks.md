@@ -319,9 +319,9 @@ Wenn du für einen Task konkrete Subtasks, Beispiel-UI, ein Issue-Template oder 
 
 ## Quickstart & Testing
 
-- [ ] Installiere Requirements (`pip install -r requirements.txt`).
-- [ ] Lege API-Keys für Alpaca (Paper), Yahoo/Finnhub/NewsAPI, OpenAI in der `.env` an.
-- [ ] Starte lokal: Das Dashboard zeigt Portfolios und Orders, Trades laufen simuliert ab.
+- [x] Installiere Requirements (`pip install -r requirements.txt`).
+- [x] Lege API-Keys für Alpaca (Paper), Yahoo/Finnhub/NewsAPI, OpenAI in der `.env` an.
+- [x] Starte lokal: Das Dashboard zeigt Portfolios und Orders, Trades laufen simuliert ab.
 
 ---
 

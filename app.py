@@ -34,6 +34,16 @@ if not manager.portfolios and API_KEY and "your_alpaca_api_key" not in API_KEY:
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
 
+# placeholders required for custom prompts
+REQUIRED_PLACEHOLDERS = ["{strategy_type}", "{portfolio}", "{research}"]
+
+
+def validate_prompt(prompt: str) -> bool:
+    """Basic validation for a custom prompt."""
+    if not prompt or len(prompt) > 1000:
+        return False
+    return all(ph in prompt for ph in REQUIRED_PLACEHOLDERS)
+
 
 def _portfolio_snapshot():
     manager.update_benchmark()
@@ -102,6 +112,8 @@ def set_strategy(name: str):
 @app.route("/portfolio/<name>/set_prompt", methods=["POST"])
 def set_prompt(name: str):
     prompt = request.form.get("custom_prompt", "")
+    if not validate_prompt(prompt):
+        return "Invalid prompt", 400
     for p in manager.portfolios:
         if p.name == name:
             p.custom_prompt = prompt
@@ -114,6 +126,8 @@ def set_prompt(name: str):
 @app.route("/portfolio/<name>/preview_prompt", methods=["POST"])
 def preview_prompt(name: str):
     prompt = request.form.get("custom_prompt", "")
+    if not validate_prompt(prompt):
+        return "Invalid prompt", 400
     symbol = request.form.get("symbol", "AAPL")
     research = get_research(symbol)
     temp_portfolio = None
