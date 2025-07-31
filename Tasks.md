@@ -48,23 +48,23 @@
 
 ### Task 2: Research-Engine bauen (Yahoo Finance, Finnhub, NewsAPI)
 
-- [ ] Erstelle das Modul `research_engine.py` im `app/`-Ordner mit folgenden Funktionen:
-    - [ ] `get_fundamentals_yahoo(symbol)`
-    - [ ] `get_news_finnhub(symbol)`
-    - [ ] `analyze_sentiment(news_items)`
-    - [ ] `get_research(symbol)` (Kombiniert alles zu JSON)
-- [ ] Test: Gebe für ein Beispiel-Symbol das Research-JSON aus.
+- [x] Erstelle das Modul `research_engine.py` im `app/`-Ordner mit folgenden Funktionen:
+    - [x] `get_fundamentals_yahoo(symbol)`
+    - [x] `get_news_finnhub(symbol)`
+    - [x] `analyze_sentiment(news_items)`
+    - [x] `get_research(symbol)` (Kombiniert alles zu JSON)
+- [x] Test: Gebe für ein Beispiel-Symbol das Research-JSON aus.
 
 ---
 
 ### Task 3: OpenAI-Strategie in `portfolio_manager.py` integrieren
 
-- [ ] Überarbeite `portfolio_manager.py`:
-    - [ ] Importiere das Research-Modul.
-    - [ ] Implementiere `get_strategy_from_openai(portfolio, research, strategy_type)`.
-    - [ ] Prompt soll Portfolio-Status, Research-JSON und Strategie-Typ enthalten.
-    - [ ] Die Methode `step_all()` soll Research holen und an OpenAI geben.
-- [ ] Test: Lass für mehrere Strategien mit gleichem Portfolio verschiedene Entscheidungen ausgeben.
+- [x] Überarbeite `portfolio_manager.py`:
+    - [x] Importiere das Research-Modul.
+    - [x] Implementiere `get_strategy_from_openai(portfolio, research, strategy_type)`.
+    - [x] Prompt soll Portfolio-Status, Research-JSON und Strategie-Typ enthalten.
+    - [x] Die Methode `step_all()` soll Research holen und an OpenAI geben.
+- [x] Test: Lass für mehrere Strategien mit gleichem Portfolio verschiedene Entscheidungen ausgeben.
 
 ---
 
@@ -125,11 +125,11 @@
 
 ### Task 10: Performance-Benchmarks & Vergleich (z.B. S&P500, DAX)
 
-- [ ] Baue eine Vergleichsfunktion, die die Performance jedes Portfolios automatisch mit mindestens einem Index (z.B. S&P500, DAX) vergleicht.
-    - [ ] Hole historische und aktuelle Daten der Benchmarks per API (z.B. Yahoo Finance, Alpha Vantage).
-    - [ ] Berechne Out- und Underperformance jedes Portfolios vs. Benchmarks (ab Startzeitpunkt).
-    - [ ] Visualisiere die Performance-Vergleiche als Chart im Dashboard.
-    - [ ] Test: Zeige für mindestens zwei Portfolios und einen Index den Performance-Vergleich an.
+- [x] Baue eine Vergleichsfunktion, die die Performance jedes Portfolios automatisch mit mindestens einem Index (z.B. S&P500, DAX) vergleicht.
+    - [x] Hole historische und aktuelle Daten der Benchmarks per API (z.B. Yahoo Finance, Alpha Vantage).
+    - [x] Berechne Out- und Underperformance jedes Portfolios vs. Benchmarks (ab Startzeitpunkt).
+    - [x] Visualisiere die Performance-Vergleiche als Chart im Dashboard.
+    - [x] Test: Zeige für mindestens zwei Portfolios und einen Index den Performance-Vergleich an.
 
 ---
 
