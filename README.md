@@ -13,3 +13,7 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```bash
    python env_test.py
    ```
+4. Test the portfolio manager (requires Alpaca paper account keys):
+   ```bash
+   python portfolio_test.py
+   ```

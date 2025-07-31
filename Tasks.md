@@ -6,43 +6,43 @@
 
 ### Task 0: Projektstruktur, .gitignore und .env Setup
 
-- [ ] Lege die grundlegende Projektstruktur an:
-    - [ ] Hauptverzeichnis, z.B. `alpaca-trading-sim/`
-    - [ ] Unterordner:
-        - [ ] `app/` (für Python-Module)
-        - [ ] `templates/` (für Flask-Templates)
-        - [ ] `static/` (für JS, CSS, ggf. Chart.js)
-        - [ ] `tests/` (optional für Unit-Tests)
-    - [ ] Wichtige Files:
-        - [ ] `app/__init__.py`
-        - [ ] `requirements.txt`
-        - [ ] `README.md`
-        - [ ] `.gitignore`
-        - [ ] `.env.example` und `.env`
-- [ ] Erstelle eine sinnvolle `.gitignore`, z.B.:
+- [x] Lege die grundlegende Projektstruktur an:
+    - [x] Hauptverzeichnis, z.B. `alpaca-trading-sim/`
+    - [x] Unterordner:
+        - [x] `app/` (für Python-Module)
+        - [x] `templates/` (für Flask-Templates)
+        - [x] `static/` (für JS, CSS, ggf. Chart.js)
+        - [x] `tests/` (optional für Unit-Tests)
+    - [x] Wichtige Files:
+        - [x] `app/__init__.py`
+        - [x] `requirements.txt`
+        - [x] `README.md`
+        - [x] `.gitignore`
+        - [x] `.env.example` und `.env`
+- [x] Erstelle eine sinnvolle `.gitignore`, z.B.:
     - `.env`
     - `__pycache__/`
     - `.vscode/`
     - `*.pyc`
     - `*.db`
-- [ ] Erstelle eine `.env.example` mit Platzhaltern für alle benötigten Secrets (API-Keys etc.).
-- [ ] Implementiere das Laden von Umgebungsvariablen in Python (`python-dotenv` oder `os.environ`).
-- [ ] Test: Einlesen von Keys aus der `.env` in einer Beispieldatei (z.B. `print(os.environ.get("ALPACA_API_KEY"))`).
+- [x] Erstelle eine `.env.example` mit Platzhaltern für alle benötigten Secrets (API-Keys etc.).
+- [x] Implementiere das Laden von Umgebungsvariablen in Python (`python-dotenv` oder `os.environ`).
+- [x] Test: Einlesen von Keys aus der `.env` in einer Beispieldatei (z.B. `print(os.environ.get("ALPACA_API_KEY"))`).
 
 ---
 
 ### Task 1: Basis-Modul `portfolio_manager.py` anlegen
 
-- [ ] Erstelle das Python-Modul `portfolio_manager.py` im `app/`-Ordner.
-    - [ ] Implementiere die Klasse `Portfolio`:
-        - [ ] Konstruktor mit Name, Alpaca-API-Key, Secret, Base-URL.
-        - [ ] Methode `get_account_info()` für Account-Status.
-        - [ ] Methode `place_order()` für Market-Orders.
-        - [ ] Member `history` für Order-Historie.
-    - [ ] Implementiere die Klasse `MultiPortfolioManager`:
-        - [ ] Verwaltung mehrerer Portfolios.
-        - [ ] Methode `step_all()` für Trades über alle Portfolios (zunächst Dummy-Entscheidung).
-- [ ] Test: Lege 2 Test-Portfolios an, prüfe Account-Info und platziere eine Beispiel-Order (Paper API).
+- [x] Erstelle das Python-Modul `portfolio_manager.py` im `app/`-Ordner.
+    - [x] Implementiere die Klasse `Portfolio`:
+        - [x] Konstruktor mit Name, Alpaca-API-Key, Secret, Base-URL.
+        - [x] Methode `get_account_info()` für Account-Status.
+        - [x] Methode `place_order()` für Market-Orders.
+        - [x] Member `history` für Order-Historie.
+    - [x] Implementiere die Klasse `MultiPortfolioManager`:
+        - [x] Verwaltung mehrerer Portfolios.
+        - [x] Methode `step_all()` für Trades über alle Portfolios (zunächst Dummy-Entscheidung).
+- [x] Test: Lege 2 Test-Portfolios an, prüfe Account-Info und platziere eine Beispiel-Order (Paper API).
 
 ---
 
