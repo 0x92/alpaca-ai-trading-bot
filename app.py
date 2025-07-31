@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from flask import Flask, render_template, redirect, url_for, request
 from flask_socketio import SocketIO
 
@@ -8,13 +10,16 @@ ENV = load_env()
 API_KEY = ENV.get("ALPACA_API_KEY")
 SECRET_KEY = ENV.get("ALPACA_SECRET_KEY")
 BASE_URL = ENV.get("ALPACA_BASE_URL")
+PORTFOLIO_FILE = Path("portfolios.json")
 
 manager = MultiPortfolioManager()
 
-# Only create live portfolios if proper credentials are provided
-if API_KEY and "your_alpaca_api_key" not in API_KEY:
+# load persisted portfolios or create defaults if none exist
+manager.load_from_file(PORTFOLIO_FILE, API_KEY, SECRET_KEY, BASE_URL)
+if not manager.portfolios and API_KEY and "your_alpaca_api_key" not in API_KEY:
     manager.add_portfolio(Portfolio("P1", API_KEY, SECRET_KEY, BASE_URL))
     manager.add_portfolio(Portfolio("P2", API_KEY, SECRET_KEY, BASE_URL))
+    manager.save_to_file(PORTFOLIO_FILE)
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
@@ -62,6 +67,24 @@ def set_strategy(name: str):
         if p.name == name:
             p.strategy_type = strategy
             break
+    manager.save_to_file(PORTFOLIO_FILE)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/create", methods=["POST"])
+def create_portfolio():
+    name = request.form.get("name")
+    strategy = request.form.get("strategy_type", "default")
+    if name:
+        manager.add_portfolio(Portfolio(name, API_KEY, SECRET_KEY, BASE_URL, strategy))
+        manager.save_to_file(PORTFOLIO_FILE)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/delete", methods=["POST"])
+def delete_portfolio(name: str):
+    manager.remove_portfolio(name)
+    manager.save_to_file(PORTFOLIO_FILE)
     return redirect(url_for("index"))
 
 
