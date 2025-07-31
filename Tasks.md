@@ -70,11 +70,11 @@
 
 ### Task 4: Flask-Webdashboard Grundgerüst
 
-- [ ] Erstelle das Flask-App-Modul `app.py` im Hauptverzeichnis:
-    - [ ] Dashboard mit Übersicht aller Portfolios (Name, Cash, Portfolio-Wert, letzte Trades).
-    - [ ] Template mit Tailwind CSS für grundlegendes UI.
-    - [ ] Button "Step" für einen Simulationsschritt.
-- [ ] Test: Portfolios und ihre Orders werden im Browser korrekt angezeigt.
+- [x] Erstelle das Flask-App-Modul `app.py` im Hauptverzeichnis:
+    - [x] Dashboard mit Übersicht aller Portfolios (Name, Cash, Portfolio-Wert, letzte Trades).
+    - [x] Template mit Tailwind CSS für grundlegendes UI.
+    - [x] Button "Step" für einen Simulationsschritt.
+- [x] Test: Portfolios und ihre Orders werden im Browser korrekt angezeigt.
 
 ---
 
