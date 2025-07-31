@@ -27,10 +27,19 @@
             <label class="text-sm">Strategy:
                 <select name="strategy_type" onchange="this.form.submit()" class="border rounded px-1 py-0">
                     {% for s in ['default', 'momentum', 'mean_reversion'] %}
-                    <option value="{{ s }}" {% if p.strategy_type == s %}selected{% endif %}>{{ s }}</option>
+                        <option value="{{ s }}" {% if p.strategy_type == s %}selected{% endif %}>{{ s }}</option>
                     {% endfor %}
                 </select>
             </label>
+        </form>
+        <form method="post" action="{{ url_for('set_prompt', name=p.name) }}" class="my-2">
+            <label class="text-sm font-semibold">Custom Prompt:</label>
+            <textarea name="custom_prompt" rows="3" class="border rounded w-full">{{ p.custom_prompt }}</textarea>
+            <div class="flex items-center space-x-2 mt-1">
+                <button type="submit" class="bg-purple-500 hover:bg-purple-700 text-white text-xs px-2 py-1 rounded">Save</button>
+                <button type="button" onclick="previewPrompt('{{ p.name }}')" class="bg-gray-300 text-xs px-2 py-1 rounded">Preview</button>
+                <span id="preview-{{ p.name }}" class="text-xs"></span>
+            </div>
         </form>
         <p>Cash: <span class="cash">{{ p.cash }}</span></p>
         <p>Portfolio value: <span class="portfolio_value">{{ p.portfolio_value }}</span></p>

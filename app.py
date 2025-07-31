@@ -6,7 +6,12 @@ from flask_socketio import SocketIO
 from app.logger import get_logger
 
 from app.config import load_env
-from app.portfolio_manager import Portfolio, MultiPortfolioManager
+from app.portfolio_manager import (
+    Portfolio,
+    MultiPortfolioManager,
+    get_strategy_from_openai,
+)
+from app.research_engine import get_research
 from app.reporting import export_trades_csv, generate_reports
 from app.diversification import analyze_portfolio
 
@@ -56,6 +61,7 @@ def _portfolio_snapshot():
             "equity_norm": manager.get_normalized_equity(p)[-50:],
             "benchmark": bench[-50:],
             "strategy_type": p.strategy_type,
+            "custom_prompt": p.custom_prompt,
             "risk_alerts": p.risk_alerts[-5:] + p.diversification_warnings,
             "stop_loss_pct": p.stop_loss_pct,
             "take_profit_pct": p.take_profit_pct,
@@ -91,6 +97,37 @@ def set_strategy(name: str):
     manager.save_to_file(PORTFOLIO_FILE)
     logger.info("Set strategy for %s to %s", name, strategy)
     return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/set_prompt", methods=["POST"])
+def set_prompt(name: str):
+    prompt = request.form.get("custom_prompt", "")
+    for p in manager.portfolios:
+        if p.name == name:
+            p.custom_prompt = prompt
+            break
+    manager.save_to_file(PORTFOLIO_FILE)
+    logger.info("Updated custom prompt for %s", name)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/preview_prompt", methods=["POST"])
+def preview_prompt(name: str):
+    prompt = request.form.get("custom_prompt", "")
+    symbol = request.form.get("symbol", "AAPL")
+    research = get_research(symbol)
+    temp_portfolio = None
+    for p in manager.portfolios:
+        if p.name == name:
+            temp_portfolio = p
+            break
+    if temp_portfolio is None:
+        return "Unknown portfolio", 404
+    original_prompt = temp_portfolio.custom_prompt
+    temp_portfolio.custom_prompt = prompt
+    decision = get_strategy_from_openai(temp_portfolio, research, temp_portfolio.strategy_type)
+    temp_portfolio.custom_prompt = original_prompt
+    return decision
 
 
 @app.route("/portfolio/create", methods=["POST"])

@@ -167,11 +167,11 @@
 
 ### Task 14: Strategie-Editor mit Custom Prompts (No-Code-Editor für OpenAI-Trading-Strategien)
 
-- [ ] Entwickle einen Editor im Dashboard, mit dem User eigene OpenAI-Prompts/Strategie-Templates konfigurieren können (ohne Programmierung).
-    - [ ] Speichere die Prompts pro Portfolio in der Datenbank oder als JSON.
-    - [ ] Validierung der Eingaben, Vorschau auf das Resultat.
-    - [ ] Binde die Custom-Prompts in die Entscheidungslogik ein, sodass bei jedem Trade der gewählte Prompt genutzt wird.
-    - [ ] Test: Definiere einen eigenen Prompt und führe Trades danach aus.
+- [x] Entwickle einen Editor im Dashboard, mit dem User eigene OpenAI-Prompts/Strategie-Templates konfigurieren können (ohne Programmierung).
+    - [x] Speichere die Prompts pro Portfolio in der Datenbank oder als JSON.
+    - [x] Validierung der Eingaben, Vorschau auf das Resultat.
+    - [x] Binde die Custom-Prompts in die Entscheidungslogik ein, sodass bei jedem Trade der gewählte Prompt genutzt wird.
+    - [x] Test: Definiere einen eigenen Prompt und führe Trades danach aus.
 
 ---
 
