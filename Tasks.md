@@ -90,11 +90,11 @@
 
 ### Task 6: Chart.js für Order-Historie und Equity Curve
 
-- [ ] Baue im Dashboard ein Chart.js-Linechart für Portfolio-Equity (Wertentwicklung).
-    - [ ] Backend: Zeitreihe für Equity vorbereiten und ans Template geben.
-    - [ ] Chart aktualisiert sich automatisch bei neuem Data-Update (über Sockets oder AJAX).
+- [x] Baue im Dashboard ein Chart.js-Linechart für Portfolio-Equity (Wertentwicklung).
+    - [x] Backend: Zeitreihe für Equity vorbereiten und ans Template geben.
+    - [x] Chart aktualisiert sich automatisch bei neuem Data-Update (über Sockets oder AJAX).
 - [ ] Optional: Pie-Chart für Holdings.
-- [ ] Test: Mehrere Trades, Entwicklung wird als Chart angezeigt.
+- [x] Test: Mehrere Trades, Entwicklung wird als Chart angezeigt.
 
 ---
 

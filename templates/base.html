@@ -5,11 +5,34 @@
     <title>Trading Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 p-4">
     {% block content %}{% endblock %}
     <script>
         const socket = io();
+        const charts = {};
+
+        function createChart(name, labels, values) {
+            const ctx = document.getElementById('chart-' + name).getContext('2d');
+            charts[name] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Equity',
+                        data: values,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
         function updatePortfolios(data) {
             if (!Array.isArray(data)) return;
             data.forEach(p => {
@@ -28,9 +51,28 @@
                         historyList.appendChild(item);
                     });
                 }
+
+                const labels = p.equity.map(e => e.time);
+                const values = p.equity.map(e => e.value);
+                if (!charts[p.name]) {
+                    createChart(p.name, labels, values);
+                } else {
+                    charts[p.name].data.labels = labels;
+                    charts[p.name].data.datasets[0].data = values;
+                    charts[p.name].update();
+                }
             });
         }
+
         socket.on('trade_update', updatePortfolios);
+        // initial bootstrap from server rendered data
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataElement = document.getElementById('initial-data');
+            if (dataElement) {
+                const portfolios = JSON.parse(dataElement.textContent);
+                updatePortfolios(portfolios);
+            }
+        });
     </script>
 </body>
 </html>

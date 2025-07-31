@@ -35,6 +35,7 @@ def _portfolio_snapshot():
             "cash": cash,
             "portfolio_value": value,
             "history": p.history[-5:],
+            "equity": p.equity_curve[-50:],
         })
     return data
 

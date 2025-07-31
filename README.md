@@ -11,19 +11,19 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```
 3. Run the environment test:
    ```bash
-   python env_test.py
+   python -m tests.env_test
    ```
 4. Test the portfolio manager (requires Alpaca paper account keys):
    ```bash
-   python portfolio_test.py
+   python -m tests.portfolio_test
    ```
 5. Run the research engine test (requires network and API keys for best results):
    ```bash
-   python research_test.py
+   python -m tests.research_test
    ```
 6. Try the OpenAI strategy demo:
    ```bash
-   python strategy_test.py
+   python -m tests.strategy_test
    ```
 
 7. Run the Flask dashboard:
