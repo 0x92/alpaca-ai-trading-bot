@@ -13,6 +13,26 @@
         const socket = io();
         const charts = {};
 
+        async function previewPrompt(name) {
+            const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
+            if (!form) return;
+            const textarea = form.querySelector('textarea[name="custom_prompt"]');
+            const previewEl = document.getElementById('preview-' + name);
+            if (!textarea || !previewEl) return;
+            const data = new FormData();
+            data.append('custom_prompt', textarea.value);
+            try {
+                const resp = await fetch(`/portfolio/${name}/preview_prompt`, {
+                    method: 'POST',
+                    body: data
+                });
+                const text = await resp.text();
+                previewEl.textContent = text;
+            } catch (err) {
+                previewEl.textContent = 'error';
+            }
+        }
+
         function createChart(name, labels, values, benchValues) {
             const ctx = document.getElementById('chart-' + name).getContext('2d');
             charts[name] = new Chart(ctx, {
@@ -46,6 +66,8 @@
                 if (!el) return;
                 const select = el.querySelector('select[name="strategy_type"]');
                 if (select) select.value = p.strategy_type;
+                const promptArea = el.querySelector('textarea[name="custom_prompt"]');
+                if (promptArea) promptArea.value = p.custom_prompt || '';
                 el.querySelector('.cash').textContent = p.cash;
                 el.querySelector('.portfolio_value').textContent = p.portfolio_value;
                 const divScoreEl = el.querySelector('.divscore');

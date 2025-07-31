@@ -37,6 +37,7 @@ class Portfolio:
     secret_key: str
     base_url: str
     strategy_type: str = "default"
+    custom_prompt: str = ""
     history: List[Dict] = field(default_factory=list)
     equity_curve: List[Dict] = field(default_factory=list)
     stop_loss_pct: float = 0.05
@@ -177,12 +178,23 @@ def get_strategy_from_openai(
         return f"no_api_key_for_{strategy_type}"
 
     account = portfolio.get_account_info()
-    prompt = (
-        "Provide a short trading decision (buy/sell/hold) for the next step.\n"
-        f"Strategy: {strategy_type}\n"
-        f"Portfolio: {json.dumps(account)}\n"
-        f"Research: {json.dumps(research)}"
-    )
+    if portfolio.custom_prompt:
+        try:
+            prompt = portfolio.custom_prompt.format(
+                strategy_type=strategy_type,
+                portfolio=json.dumps(account),
+                research=json.dumps(research),
+            )
+        except Exception as exc:
+            logger.error("Failed to format custom prompt for %s: %s", portfolio.name, exc)
+            prompt = portfolio.custom_prompt
+    else:
+        prompt = (
+            "Provide a short trading decision (buy/sell/hold) for the next step.\n"
+            f"Strategy: {strategy_type}\n"
+            f"Portfolio: {json.dumps(account)}\n"
+            f"Research: {json.dumps(research)}"
+        )
     try:
         resp = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -227,6 +239,7 @@ class MultiPortfolioManager:
                     secret_key,
                     base_url,
                     item.get("strategy_type", "default"),
+                    item.get("custom_prompt", ""),
                 )
                 for item in data
             ]
@@ -238,7 +251,11 @@ class MultiPortfolioManager:
         """Persist portfolio definitions (name + strategy) to JSON file."""
         file_path = Path(path)
         data = [
-            {"name": p.name, "strategy_type": p.strategy_type}
+            {
+                "name": p.name,
+                "strategy_type": p.strategy_type,
+                "custom_prompt": p.custom_prompt,
+            }
             for p in self.portfolios
         ]
         file_path.write_text(json.dumps(data, indent=2))
