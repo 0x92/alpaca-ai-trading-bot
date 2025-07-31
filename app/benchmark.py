@@ -30,6 +30,11 @@ def get_latest_benchmark_price(symbol: str = "^spx") -> Dict[str, str | float]:
     return {}
 
 
+def get_latest_price(symbol: str) -> Dict[str, str | float]:
+    """Return latest close price for any symbol from Stooq."""
+    return get_latest_benchmark_price(symbol)
+
+
 def normalize_curve(curve: List[Dict[str, float]]) -> List[Dict[str, float]]:
     """Normalize time series values to start at 100."""
     if not curve:

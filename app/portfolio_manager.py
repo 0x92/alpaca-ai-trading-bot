@@ -15,7 +15,11 @@ from alpaca.trading.enums import OrderSide, TimeInForce, OrderType
 from .config import load_env
 from .research_engine import get_research
 from .logger import get_logger
-from .benchmark import get_latest_benchmark_price, normalize_curve
+from .benchmark import (
+    get_latest_benchmark_price,
+    get_latest_price,
+    normalize_curve,
+)
 
 logger = get_logger(__name__)
 
@@ -34,6 +38,15 @@ class Portfolio:
     strategy_type: str = "default"
     history: List[Dict] = field(default_factory=list)
     equity_curve: List[Dict] = field(default_factory=list)
+    stop_loss_pct: float = 0.05
+    take_profit_pct: float = 0.1
+    max_drawdown_pct: float = 0.2
+    risk_level: float = 0.02  # fraction of cash to risk per trade
+    holdings: Dict[str, float] = field(default_factory=dict)
+    avg_prices: Dict[str, float] = field(default_factory=dict)
+    risk_alerts: List[str] = field(default_factory=list)
+    initial_value: float | None = None
+    high_water: float = 0.0
 
     def __post_init__(self) -> None:
         paper = "paper" in self.base_url
@@ -67,10 +80,89 @@ class Portfolio:
         try:
             order = self.client.submit_order(order_data)
             self.history.append(order.model_dump())
+            if side.lower() == "buy":
+                self.holdings[symbol] = self.holdings.get(symbol, 0) + qty
+                price_info = get_latest_price(symbol)
+                price = price_info.get("value")
+                if price:
+                    prev_qty = self.holdings.get(symbol, 0) - qty
+                    if prev_qty > 0 and symbol in self.avg_prices:
+                        avg = (
+                            self.avg_prices[symbol] * prev_qty + price * qty
+                        ) / (prev_qty + qty)
+                        self.avg_prices[symbol] = avg
+                    else:
+                        self.avg_prices[symbol] = price
+            else:
+                if symbol in self.holdings:
+                    self.holdings.pop(symbol, None)
+                    self.avg_prices.pop(symbol, None)
             return order
         except Exception as exc:
             logger.error("Order failed for %s: %s", self.name, exc)
             raise
+
+    def smart_allocation(self, symbol: str) -> float:
+        """Determine position size based on risk level and latest price."""
+        info = self.get_account_info()
+        cash = float(info.get("cash") or 0)
+        price_info = get_latest_price(symbol)
+        price = price_info.get("value", 0)
+        if price == 0:
+            return 0.0
+        allocation = cash * self.risk_level
+        qty = allocation / price
+        return round(max(qty, 0), 4)
+
+    def check_risk(self, account_value: float | None = None, simulate: bool = False) -> None:
+        """Check risk parameters and act if limits are hit."""
+        if account_value is None:
+            info = self.get_account_info()
+            value = info.get("portfolio_value")
+            if value is None:
+                return
+            account_value = float(value)
+        if self.initial_value is None:
+            self.initial_value = account_value
+            self.high_water = account_value
+            return
+        self.high_water = max(self.high_water, account_value)
+        drawdown = (self.high_water - account_value) / self.high_water
+        if drawdown >= self.max_drawdown_pct:
+            alert = f"Max drawdown {drawdown:.2%} exceeded"
+            self.risk_alerts.append(alert)
+            if not simulate and self.api_key and "your_alpaca_api_key" not in self.api_key:
+                try:
+                    self.client.close_all_positions(cancel_orders=True)
+                except Exception as exc:
+                    logger.error("Failed to close positions for %s: %s", self.name, exc)
+        for symbol, qty in list(self.holdings.items()):
+            price_info = get_latest_price(symbol)
+            price = price_info.get("value")
+            avg = self.avg_prices.get(symbol)
+            if not price or not avg:
+                continue
+            change = (price - avg) / avg
+            if change <= -self.stop_loss_pct:
+                alert = f"Stop-loss triggered for {symbol}"
+                self.risk_alerts.append(alert)
+                if not simulate:
+                    try:
+                        self.place_order(symbol, qty, "sell")
+                    except Exception as exc:
+                        logger.error("Stop-loss order failed for %s: %s", self.name, exc)
+                self.holdings.pop(symbol, None)
+                self.avg_prices.pop(symbol, None)
+            elif change >= self.take_profit_pct:
+                alert = f"Take-profit triggered for {symbol}"
+                self.risk_alerts.append(alert)
+                if not simulate:
+                    try:
+                        self.place_order(symbol, qty, "sell")
+                    except Exception as exc:
+                        logger.error("Take-profit order failed for %s: %s", self.name, exc)
+                self.holdings.pop(symbol, None)
+                self.avg_prices.pop(symbol, None)
 
 
 def get_strategy_from_openai(
@@ -177,18 +269,25 @@ class MultiPortfolioManager:
             decision = get_strategy_from_openai(p, research, p.strategy_type)
             logger.info("%s decision %s", p.name, decision)
             if decision.lower().startswith("buy"):
-                try:
-                    p.place_order(symbol, 1, "buy")
-                except Exception as exc:
-                    logger.error("Failed to place order for %s: %s", p.name, exc)
+                qty = p.smart_allocation(symbol)
+                if qty > 0:
+                    try:
+                        p.place_order(symbol, qty, "buy")
+                    except Exception as exc:
+                        logger.error("Failed to place order for %s: %s", p.name, exc)
             elif decision.lower().startswith("sell"):
-                try:
-                    p.place_order(symbol, 1, "sell")
-                except Exception as exc:
-                    logger.error("Failed to place order for %s: %s", p.name, exc)
+                qty = p.holdings.get(symbol, 0)
+                if qty > 0:
+                    try:
+                        p.place_order(symbol, qty, "sell")
+                    except Exception as exc:
+                        logger.error("Failed to place order for %s: %s", p.name, exc)
             # record latest account value
             try:
-                p.get_account_info()
+                info = p.get_account_info()
+                value = info.get("portfolio_value")
+                if value is not None:
+                    p.check_risk(float(value))
             except Exception as exc:
                 logger.error("Failed to fetch account info for %s: %s", p.name, exc)
 
