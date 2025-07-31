@@ -17,3 +17,7 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```bash
    python portfolio_test.py
    ```
+5. Run the research engine test (requires network and API keys for best results):
+   ```bash
+   python research_test.py
+   ```
