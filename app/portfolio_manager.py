@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from typing import List, Dict
+from pathlib import Path
 from datetime import datetime
 
 import openai
@@ -92,8 +93,51 @@ class MultiPortfolioManager:
     def __init__(self, portfolios: List[Portfolio] | None = None):
         self.portfolios: List[Portfolio] = portfolios or []
 
+    # --- Persistence helpers -------------------------------------------------
+    def load_from_file(
+        self,
+        path: str | Path,
+        api_key: str,
+        secret_key: str,
+        base_url: str,
+    ) -> None:
+        """Load portfolio definitions from JSON file."""
+        file_path = Path(path)
+        if not file_path.exists():
+            return
+        try:
+            data = json.loads(file_path.read_text())
+            self.portfolios = [
+                Portfolio(
+                    item.get("name"),
+                    api_key,
+                    secret_key,
+                    base_url,
+                    item.get("strategy_type", "default"),
+                )
+                for item in data
+            ]
+        except Exception:
+            # ignore malformed json
+            pass
+
+    def save_to_file(self, path: str | Path) -> None:
+        """Persist portfolio definitions (name + strategy) to JSON file."""
+        file_path = Path(path)
+        data = [
+            {"name": p.name, "strategy_type": p.strategy_type}
+            for p in self.portfolios
+        ]
+        file_path.write_text(json.dumps(data, indent=2))
+
+    # -------------------------------------------------------------------------
+
     def add_portfolio(self, portfolio: Portfolio) -> None:
         self.portfolios.append(portfolio)
+
+    def remove_portfolio(self, name: str) -> None:
+        """Remove a portfolio by name."""
+        self.portfolios = [p for p in self.portfolios if p.name != name]
 
     def step_all(self, symbol: str = "AAPL"):
         """Get research and ask OpenAI for a trade decision for each portfolio."""

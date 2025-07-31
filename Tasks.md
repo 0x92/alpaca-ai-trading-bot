@@ -110,9 +110,9 @@
 
 ### Task 8: (Optional) Portfolio-Management UI & User-Flows
 
-- [ ] Möglichkeit, neue Portfolios im Dashboard anzulegen/löschen.
-- [ ] Übersicht über alle Portfolios und ihre Strategien.
-- [ ] Persistenz in SQLite oder JSON.
+- [x] Möglichkeit, neue Portfolios im Dashboard anzulegen/löschen.
+- [x] Übersicht über alle Portfolios und ihre Strategien.
+- [x] Persistenz in SQLite oder JSON.
 
 ---
 

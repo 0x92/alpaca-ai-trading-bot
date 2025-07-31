@@ -2,13 +2,27 @@
 
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Portfolios</h1>
+<form method="post" action="{{ url_for('create_portfolio') }}" class="mb-4 space-x-2">
+    <input type="text" name="name" placeholder="Name" required class="border px-1 py-0" />
+    <select name="strategy_type" class="border rounded px-1 py-0">
+        {% for s in ['default', 'momentum', 'mean_reversion'] %}
+        <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">Add</button>
+</form>
 <form method="post" action="{{ url_for('step') }}" class="mb-4">
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Step</button>
 </form>
 <div class="space-y-4">
     {% for p in portfolios %}
     <div id="portfolio-{{ p.name }}" class="bg-white shadow p-4 rounded">
-        <h2 class="text-xl font-semibold">{{ p.name }}</h2>
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold">{{ p.name }}</h2>
+            <form method="post" action="{{ url_for('delete_portfolio', name=p.name) }}">
+                <button type="submit" class="text-red-500 text-sm">Delete</button>
+            </form>
+        </div>
         <form method="post" action="{{ url_for('set_strategy', name=p.name) }}" class="my-2">
             <label class="text-sm">Strategy:
                 <select name="strategy_type" onchange="this.form.submit()" class="border rounded px-1 py-0">
