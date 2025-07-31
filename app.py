@@ -56,6 +56,7 @@ def _portfolio_snapshot():
             "equity_norm": manager.get_normalized_equity(p)[-50:],
             "benchmark": bench[-50:],
             "strategy_type": p.strategy_type,
+            "custom_prompt": p.custom_prompt,
             "risk_alerts": p.risk_alerts[-5:] + p.diversification_warnings,
             "stop_loss_pct": p.stop_loss_pct,
             "take_profit_pct": p.take_profit_pct,
@@ -93,12 +94,29 @@ def set_strategy(name: str):
     return redirect(url_for("index"))
 
 
+@app.route("/portfolio/<name>/set_prompt", methods=["POST"])
+def set_prompt(name: str):
+    prompt = request.form.get("prompt", "").strip()
+    if len(prompt) < 5:
+        prompt = ""
+    for p in manager.portfolios:
+        if p.name == name:
+            p.custom_prompt = prompt
+            break
+    manager.save_to_file(PORTFOLIO_FILE)
+    logger.info("Set prompt for %s", name)
+    return redirect(url_for("index"))
+
+
 @app.route("/portfolio/create", methods=["POST"])
 def create_portfolio():
     name = request.form.get("name")
     strategy = request.form.get("strategy_type", "default")
+    prompt = request.form.get("prompt", "")
     if name:
-        manager.add_portfolio(Portfolio(name, API_KEY, SECRET_KEY, BASE_URL, strategy))
+        manager.add_portfolio(
+            Portfolio(name, API_KEY, SECRET_KEY, BASE_URL, strategy, prompt)
+        )
         manager.save_to_file(PORTFOLIO_FILE)
         logger.info("Created portfolio %s", name)
     return redirect(url_for("index"))

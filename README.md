@@ -42,4 +42,5 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```bash
    python app.py
    ```
-   The dashboard lets you pick a strategy for each portfolio from a dropdown.
+   The dashboard lets you pick a strategy for each portfolio from a dropdown and
+   edit a custom OpenAI prompt for every portfolio.

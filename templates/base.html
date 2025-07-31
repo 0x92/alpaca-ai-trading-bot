@@ -46,6 +46,8 @@
                 if (!el) return;
                 const select = el.querySelector('select[name="strategy_type"]');
                 if (select) select.value = p.strategy_type;
+                const promptInput = el.querySelector('textarea[name="prompt"]');
+                if (promptInput) promptInput.value = p.custom_prompt || '';
                 el.querySelector('.cash').textContent = p.cash;
                 el.querySelector('.portfolio_value').textContent = p.portfolio_value;
                 const divScoreEl = el.querySelector('.divscore');

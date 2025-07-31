@@ -37,6 +37,7 @@ class Portfolio:
     secret_key: str
     base_url: str
     strategy_type: str = "default"
+    custom_prompt: str = ""
     history: List[Dict] = field(default_factory=list)
     equity_curve: List[Dict] = field(default_factory=list)
     stop_loss_pct: float = 0.05
@@ -170,19 +171,29 @@ class Portfolio:
 
 
 def get_strategy_from_openai(
-    portfolio: Portfolio, research: dict, strategy_type: str = "default"
+    portfolio: Portfolio,
+    research: dict,
+    strategy_type: str = "default",
+    custom_prompt: str | None = None,
 ) -> str:
     """Return a trading instruction string from OpenAI."""
     if not openai.api_key or "your_openai_api_key" in openai.api_key:
         return f"no_api_key_for_{strategy_type}"
 
     account = portfolio.get_account_info()
-    prompt = (
-        "Provide a short trading decision (buy/sell/hold) for the next step.\n"
-        f"Strategy: {strategy_type}\n"
-        f"Portfolio: {json.dumps(account)}\n"
-        f"Research: {json.dumps(research)}"
-    )
+    if custom_prompt:
+        prompt = custom_prompt.format(
+            portfolio=json.dumps(account),
+            research=json.dumps(research),
+            strategy_type=strategy_type,
+        )
+    else:
+        prompt = (
+            "Provide a short trading decision (buy/sell/hold) for the next step.\n"
+            f"Strategy: {strategy_type}\n"
+            f"Portfolio: {json.dumps(account)}\n"
+            f"Research: {json.dumps(research)}"
+        )
     try:
         resp = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -227,6 +238,7 @@ class MultiPortfolioManager:
                     secret_key,
                     base_url,
                     item.get("strategy_type", "default"),
+                    item.get("prompt", ""),
                 )
                 for item in data
             ]
@@ -238,7 +250,11 @@ class MultiPortfolioManager:
         """Persist portfolio definitions (name + strategy) to JSON file."""
         file_path = Path(path)
         data = [
-            {"name": p.name, "strategy_type": p.strategy_type}
+            {
+                "name": p.name,
+                "strategy_type": p.strategy_type,
+                "prompt": p.custom_prompt,
+            }
             for p in self.portfolios
         ]
         file_path.write_text(json.dumps(data, indent=2))
@@ -270,7 +286,9 @@ class MultiPortfolioManager:
         self.update_benchmark()
         for p in self.portfolios:
             research = get_research(symbol)
-            decision = get_strategy_from_openai(p, research, p.strategy_type)
+            decision = get_strategy_from_openai(
+                p, research, p.strategy_type, p.custom_prompt or None
+            )
             logger.info("%s decision %s", p.name, decision)
             if decision.lower().startswith("buy"):
                 qty = p.smart_allocation(symbol)

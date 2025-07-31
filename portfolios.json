@@ -1,4 +1,4 @@
 [
-    {"name": "P1", "strategy_type": "default"},
-    {"name": "P2", "strategy_type": "default"}
+    {"name": "P1", "strategy_type": "default", "prompt": ""},
+    {"name": "P2", "strategy_type": "default", "prompt": ""}
 ]
