@@ -37,6 +37,14 @@
         <div class="h-48">
             <canvas id="chart-{{ p.name }}"></canvas>
         </div>
+        <h3 class="font-semibold mt-2">Risk Alerts</h3>
+        <ul class="list-disc list-inside risk_alerts">
+            {% for alert in p.risk_alerts %}
+            <li>{{ alert }}</li>
+            {% else %}
+            <li>No alerts.</li>
+            {% endfor %}
+        </ul>
         <h3 class="font-semibold mt-2">Trades</h3>
         <ul class="list-disc list-inside history">
             {% for trade in p.history %}

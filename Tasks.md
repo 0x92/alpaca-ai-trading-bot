@@ -135,12 +135,12 @@
 
 ### Task 11: Intelligentes Positions- und Risikomanagement
 
-- [ ] Implementiere Risiko-Features pro Portfolio:
-    - [ ] Setze Stop-Loss, Take-Profit, Max-Drawdown-Limits (einstellbar pro Portfolio).
-    - [ ] Bei Überschreiten automatisches Schließen von Positionen oder Warnmeldungen.
-    - [ ] Ergänze einen “Smart Allocator” für Positionsgrößen anhand Risikoniveau und/oder KI-Empfehlung.
-    - [ ] Visualisiere Risikostatus und Alarme im Dashboard.
-    - [ ] Test: Simuliere einen Drawdown und prüfe, ob korrekt reagiert wird.
+- [x] Implementiere Risiko-Features pro Portfolio:
+    - [x] Setze Stop-Loss, Take-Profit, Max-Drawdown-Limits (einstellbar pro Portfolio).
+    - [x] Bei Überschreiten automatisches Schließen von Positionen oder Warnmeldungen.
+    - [x] Ergänze einen “Smart Allocator” für Positionsgrößen anhand Risikoniveau und/oder KI-Empfehlung.
+    - [x] Visualisiere Risikostatus und Alarme im Dashboard.
+    - [x] Test: Simuliere einen Drawdown und prüfe, ob korrekt reagiert wird.
 
 ---
 

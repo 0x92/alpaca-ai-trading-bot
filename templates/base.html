@@ -60,6 +60,20 @@
                     });
                 }
 
+                const alertList = el.querySelector('.risk_alerts');
+                if (alertList) {
+                    alertList.innerHTML = '';
+                    if (p.risk_alerts.length === 0) {
+                        alertList.innerHTML = '<li>No alerts.</li>';
+                    } else {
+                        p.risk_alerts.forEach(a => {
+                            const item = document.createElement('li');
+                            item.textContent = a;
+                            alertList.appendChild(item);
+                        });
+                    }
+                }
+
                 const labels = p.equity_norm.map(e => e.time);
                 const values = p.equity_norm.map(e => e.value);
                 const benchValues = p.benchmark.map(b => b.value);

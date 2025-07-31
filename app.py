@@ -50,6 +50,10 @@ def _portfolio_snapshot():
             "equity_norm": manager.get_normalized_equity(p)[-50:],
             "benchmark": bench[-50:],
             "strategy_type": p.strategy_type,
+            "risk_alerts": p.risk_alerts[-5:],
+            "stop_loss_pct": p.stop_loss_pct,
+            "take_profit_pct": p.take_profit_pct,
+            "max_drawdown_pct": p.max_drawdown_pct,
         })
     return data
 

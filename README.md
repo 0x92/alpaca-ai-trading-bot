@@ -25,8 +25,12 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    ```bash
    python -m tests.strategy_test
    ```
+7. Run the risk management test:
+   ```bash
+   python -m tests.risk_test
+   ```
 
-7. Run the Flask dashboard:
+8. Run the Flask dashboard:
    ```bash
    python app.py
    ```
