@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Portfolios</h1>
+<form method="post" action="{{ url_for('step') }}" class="mb-4">
+    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Step</button>
+</form>
+<div class="space-y-4">
+    {% for p in portfolios %}
+    <div class="bg-white shadow p-4 rounded">
+        <h2 class="text-xl font-semibold">{{ p.name }}</h2>
+        <p>Cash: {{ p.cash }}</p>
+        <p>Portfolio value: {{ p.portfolio_value }}</p>
+        <h3 class="font-semibold mt-2">Trades</h3>
+        <ul class="list-disc list-inside">
+            {% for trade in p.history %}
+            <li>{{ trade.get('symbol') }} {{ trade.get('side') }} {{ trade.get('qty') }} @ {{ trade.get('submitted_at') }}</li>
+            {% else %}
+            <li>No trades yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

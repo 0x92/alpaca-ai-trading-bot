@@ -3,3 +3,4 @@ alpaca-py
 requests
 textblob
 openai
+Flask
