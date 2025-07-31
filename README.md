@@ -43,3 +43,11 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    python app.py
    ```
    The dashboard lets you pick a strategy for each portfolio from a dropdown.
+
+## Custom Prompt Editor
+
+Within the dashboard each portfolio provides a textarea to configure a custom
+prompt for OpenAI. The prompt must contain the placeholders `{strategy_type}`,
+`{portfolio}` and `{research}` which will automatically be filled in before the
+request is sent. Use the "Preview" button to see the generated decision before
+saving the prompt.
