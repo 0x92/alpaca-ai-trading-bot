@@ -12,6 +12,7 @@
     <script>
         const socket = io();
         const charts = {};
+        const positionsStore = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -57,6 +58,52 @@
                     maintainAspectRatio: false
                 }
             });
+        }
+
+        function renderPositions(name) {
+            const data = positionsStore[name] || [];
+            const table = document.getElementById('positions-' + name);
+            if (!table) return;
+            const sortSelect = document.getElementById('pos-sort-' + name);
+            const filterInput = document.getElementById('pos-filter-' + name);
+            let items = data.slice();
+            if (filterInput && filterInput.value) {
+                const term = filterInput.value.toLowerCase();
+                items = items.filter(pos => pos.symbol.toLowerCase().includes(term));
+            }
+            const sortKey = sortSelect ? sortSelect.value : 'symbol';
+            items.sort((a, b) => {
+                if (sortKey === 'pnl') return b.pnl - a.pnl;
+                return a.symbol.localeCompare(b.symbol);
+            });
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            if (items.length === 0) {
+                const row = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.textContent = 'No positions';
+                row.appendChild(td);
+                tbody.appendChild(row);
+            } else {
+                items.forEach(pos => {
+                    const row = document.createElement('tr');
+                    row.innerHTML =
+                        `<td class="border px-1">${pos.symbol}</td>` +
+                        `<td class="border px-1">${pos.qty}</td>` +
+                        `<td class="border px-1">${pos.price.toFixed(2)}</td>` +
+                        `<td class="border px-1">${pos.avg_price.toFixed(2)}</td>` +
+                        `<td class="border px-1">${pos.pnl.toFixed(2)} (${(pos.pnl_pct*100).toFixed(2)}%)</td>`;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function attachPositionHandlers(name) {
+            const sortSelect = document.getElementById('pos-sort-' + name);
+            const filterInput = document.getElementById('pos-filter-' + name);
+            if (sortSelect) sortSelect.addEventListener('change', () => renderPositions(name));
+            if (filterInput) filterInput.addEventListener('input', () => renderPositions(name));
         }
 
         function updatePortfolios(data) {
@@ -130,6 +177,10 @@
                     charts[p.name].data.datasets[1].data = benchValues;
                     charts[p.name].update();
                 }
+
+                positionsStore[p.name] = p.positions || [];
+                attachPositionHandlers(p.name);
+                renderPositions(p.name);
             });
         }
 
@@ -140,6 +191,7 @@
             if (dataElement) {
                 const portfolios = JSON.parse(dataElement.textContent);
                 updatePortfolios(portfolios);
+                portfolios.forEach(p => attachPositionHandlers(p.name));
             }
         });
     </script>

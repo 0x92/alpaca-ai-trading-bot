@@ -185,10 +185,10 @@ Alle Tasks sind so formuliert, dass sie einzeln umgesetzt werden können. Vieles
 ```markdown
 ### Task 15: Live-Positionsübersicht pro Portfolio (Bot)
 
-- [ ] Baue eine Live-Ansicht aller offenen Positionen je Portfolio ins Dashboard:
-    - [ ] Symbol, Stückzahl, aktueller Kurs, durchschnittlicher Einstiegskurs, aktueller Gewinn/Verlust (absolut/relativ)
-    - [ ] Echtzeit-Update via SocketIO/Websocket
-    - [ ] Sortier- und Filteroption (z.B. nach Gewinn/Verlust)
+- [x] Baue eine Live-Ansicht aller offenen Positionen je Portfolio ins Dashboard:
+    - [x] Symbol, Stückzahl, aktueller Kurs, durchschnittlicher Einstiegskurs, aktueller Gewinn/Verlust (absolut/relativ)
+    - [x] Echtzeit-Update via SocketIO/Websocket
+    - [x] Sortier- und Filteroption (z.B. nach Gewinn/Verlust)
 
 ---
 

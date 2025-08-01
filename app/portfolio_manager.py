@@ -66,7 +66,9 @@ class Portfolio:
             info = account.model_dump()
             value = info.get("portfolio_value")
             if value is not None:
-                self.equity_curve.append({"time": datetime.utcnow().isoformat(), "value": float(value)})
+                self.equity_curve.append(
+                    {"time": datetime.utcnow().isoformat(), "value": float(value)}
+                )
             return info
         except Exception as exc:
             logger.error("Failed to get account info for %s: %s", self.name, exc)
@@ -92,9 +94,9 @@ class Portfolio:
                 if price:
                     prev_qty = self.holdings.get(symbol, 0) - qty
                     if prev_qty > 0 and symbol in self.avg_prices:
-                        avg = (
-                            self.avg_prices[symbol] * prev_qty + price * qty
-                        ) / (prev_qty + qty)
+                        avg = (self.avg_prices[symbol] * prev_qty + price * qty) / (
+                            prev_qty + qty
+                        )
                         self.avg_prices[symbol] = avg
                     else:
                         self.avg_prices[symbol] = price
@@ -119,7 +121,32 @@ class Portfolio:
         qty = allocation / price
         return round(max(qty, 0), 4)
 
-    def check_risk(self, account_value: float | None = None, simulate: bool = False) -> None:
+    def get_positions(self) -> List[Dict]:
+        """Return a list of open positions with live PnL information."""
+        positions = []
+        for sym, qty in self.holdings.items():
+            price_info = get_latest_price(sym)
+            price = price_info.get("value")
+            avg = self.avg_prices.get(sym, 0)
+            if price is None or avg == 0:
+                continue
+            pnl = (price - avg) * qty
+            pnl_pct = (price - avg) / avg if avg else 0
+            positions.append(
+                {
+                    "symbol": sym,
+                    "qty": qty,
+                    "price": price,
+                    "avg_price": avg,
+                    "pnl": pnl,
+                    "pnl_pct": pnl_pct,
+                }
+            )
+        return positions
+
+    def check_risk(
+        self, account_value: float | None = None, simulate: bool = False
+    ) -> None:
         """Check risk parameters and act if limits are hit."""
         if account_value is None:
             info = self.get_account_info()
@@ -136,7 +163,11 @@ class Portfolio:
         if drawdown >= self.max_drawdown_pct:
             alert = f"Max drawdown {drawdown:.2%} exceeded"
             self.risk_alerts.append(alert)
-            if not simulate and self.api_key and "your_alpaca_api_key" not in self.api_key:
+            if (
+                not simulate
+                and self.api_key
+                and "your_alpaca_api_key" not in self.api_key
+            ):
                 try:
                     self.client.close_all_positions(cancel_orders=True)
                 except Exception as exc:
@@ -155,7 +186,9 @@ class Portfolio:
                     try:
                         self.place_order(symbol, qty, "sell")
                     except Exception as exc:
-                        logger.error("Stop-loss order failed for %s: %s", self.name, exc)
+                        logger.error(
+                            "Stop-loss order failed for %s: %s", self.name, exc
+                        )
                 self.holdings.pop(symbol, None)
                 self.avg_prices.pop(symbol, None)
             elif change >= self.take_profit_pct:
@@ -165,7 +198,9 @@ class Portfolio:
                     try:
                         self.place_order(symbol, qty, "sell")
                     except Exception as exc:
-                        logger.error("Take-profit order failed for %s: %s", self.name, exc)
+                        logger.error(
+                            "Take-profit order failed for %s: %s", self.name, exc
+                        )
                 self.holdings.pop(symbol, None)
                 self.avg_prices.pop(symbol, None)
 
@@ -186,7 +221,9 @@ def get_strategy_from_openai(
                 research=json.dumps(research),
             )
         except Exception as exc:
-            logger.error("Failed to format custom prompt for %s: %s", portfolio.name, exc)
+            logger.error(
+                "Failed to format custom prompt for %s: %s", portfolio.name, exc
+            )
             prompt = portfolio.custom_prompt
     else:
         prompt = (
@@ -213,7 +250,9 @@ def get_strategy_from_openai(
 class MultiPortfolioManager:
     """Manage multiple Portfolio instances."""
 
-    def __init__(self, portfolios: List[Portfolio] | None = None, benchmark_symbol: str = "^spx"):
+    def __init__(
+        self, portfolios: List[Portfolio] | None = None, benchmark_symbol: str = "^spx"
+    ):
         self.portfolios: List[Portfolio] = portfolios or []
         self.benchmark_symbol = benchmark_symbol
         self.benchmark_curve: List[Dict] = []
@@ -311,4 +350,3 @@ class MultiPortfolioManager:
                     p.check_risk(float(value))
             except Exception as exc:
                 logger.error("Failed to fetch account info for %s: %s", p.name, exc)
-
