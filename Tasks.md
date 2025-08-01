@@ -289,12 +289,12 @@
 
 ### Task 24: User-Notizen & Tagging pro Trade
 
-- [ ] **Backend**:  
-    - [ ] Datenmodell: Notiz- und Tag-Felder an Trade-Objekt.
-    - [ ] API-Routen zum Hinzufügen, Bearbeiten, Löschen von Notizen/Tags (`/api/trade/<id>/notes`, `/api/trade/<id>/tags`).
-- [ ] **Frontend**:  
-    - [ ] Notiz-Eingabefeld und Tag-Widget pro Trade/Position im UI.
-    - [ ] Anzeige und Suche nach Tags/Notizen.
+- [x] **Backend**:
+    - [x] Datenmodell: Notiz- und Tag-Felder an Trade-Objekt.
+    - [x] API-Routen zum Hinzufügen, Bearbeiten, Löschen von Notizen/Tags (`/api/trade/<id>/notes`, `/api/trade/<id>/tags`).
+- [x] **Frontend**:
+    - [x] Notiz-Eingabefeld und Tag-Widget pro Trade/Position im UI.
+    - [x] Anzeige und Suche nach Tags/Notizen.
 
 ---
 

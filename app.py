@@ -302,6 +302,52 @@ def api_trade_decision_explainer(trade_id: str):
     return {}
 
 
+@app.route("/api/trade/<trade_id>/notes", methods=["GET", "POST", "DELETE"])
+def api_trade_notes(trade_id: str):
+    """Manage notes for a trade."""
+    for p in manager.portfolios:
+        trade = p.find_trade(trade_id) if hasattr(p, "find_trade") else None
+        if trade:
+            if request.method == "GET":
+                return {"notes": trade.get("notes", "")}
+            elif request.method == "POST":
+                data = request.get_json(silent=True) or {}
+                notes = data.get("notes") or request.form.get("notes", "")
+                p.set_trade_notes(trade_id, notes)
+                p.log_event("note", f"updated trade {trade_id} note")
+                return {"notes": notes}
+            else:
+                p.set_trade_notes(trade_id, "")
+                p.log_event("note", f"deleted trade {trade_id} note")
+                return {"notes": ""}
+    return {"notes": ""}, 404
+
+
+@app.route("/api/trade/<trade_id>/tags", methods=["GET", "POST", "DELETE"])
+def api_trade_tags(trade_id: str):
+    """Manage tags for a trade."""
+    for p in manager.portfolios:
+        trade = p.find_trade(trade_id) if hasattr(p, "find_trade") else None
+        if trade:
+            if request.method == "GET":
+                return {"tags": trade.get("tags", [])}
+            elif request.method == "POST":
+                data = request.get_json(silent=True) or {}
+                tags = data.get("tags") or request.form.get("tags", "")
+                if isinstance(tags, str):
+                    tags_list = [t.strip() for t in tags.split(',') if t.strip()]
+                else:
+                    tags_list = tags if isinstance(tags, list) else []
+                p.set_trade_tags(trade_id, tags_list)
+                p.log_event("tag", f"updated trade {trade_id} tags")
+                return {"tags": tags_list}
+            else:
+                p.set_trade_tags(trade_id, [])
+                p.log_event("tag", f"deleted trade {trade_id} tags")
+                return {"tags": []}
+    return {"tags": []}, 404
+
+
 @app.route("/portfolio/create", methods=["POST"])
 def create_portfolio():
     name = request.form.get("name")
