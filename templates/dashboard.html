@@ -162,6 +162,12 @@
             <div class="space-x-2 text-sm">
                 <a href="{{ url_for('export_trades', name=p.name) }}" class="text-blue-500">Download</a>
                 <a href="{{ url_for('get_report', name=p.name) }}" class="text-blue-500">Report</a>
+                <select id="export-format-{{ p.name }}" class="border text-xs">
+                    <option value="json">json</option>
+                    <option value="csv">csv</option>
+                    <option value="pdf">pdf</option>
+                </select>
+                <a href="#" onclick="exportDashboard('{{ p.name }}')" class="text-blue-500">Export</a>
             </div>
         </div>
         <div class="h-24 mt-1">

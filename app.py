@@ -14,7 +14,11 @@ from app.portfolio_manager import (
     set_activity_callback,
 )
 from app.research_engine import get_research
-from app.reporting import export_trades_csv, generate_reports
+from app.reporting import (
+    export_trades_csv,
+    generate_reports,
+    export_dashboard_data,
+)
 from app.diversification import analyze_portfolio
 from app.price_history import get_price_history
 
@@ -269,6 +273,23 @@ def api_pnl_history(name: str):
                 **p.get_top_flop_trades(),
             }
     return {"pnl": [], "top": [], "flop": []}
+
+
+@app.route("/api/portfolio/<name>/export")
+def api_export_portfolio(name: str):
+    """Export dashboard data in various formats."""
+    fmt = request.args.get("format", "json")
+    for p in manager.portfolios:
+        if p.name == name:
+            if fmt == "json":
+                data = export_dashboard_data(p, manager, "json")
+                return data
+            try:
+                path = export_dashboard_data(p, manager, fmt, "reports")
+            except ValueError:
+                return {"error": "invalid format"}, 400
+            return send_file(path, as_attachment=True)
+    return {"error": "not_found"}, 404
 
 
 @app.route("/api/portfolios/compare")

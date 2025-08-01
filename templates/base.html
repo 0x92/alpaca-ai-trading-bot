@@ -45,6 +45,12 @@
             }
         }
 
+        function exportDashboard(name) {
+            const sel = document.getElementById('export-format-' + name);
+            const fmt = sel ? sel.value : 'json';
+            window.location = `/api/portfolio/${name}/export?format=${fmt}`;
+        }
+
         function createChart(name, labels, values, benchValues) {
             const ctx = document.getElementById('chart-' + name).getContext('2d');
             charts[name] = new Chart(ctx, {

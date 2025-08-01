@@ -6,3 +6,4 @@ openai
 Flask
 Flask-SocketIO
 pandas
+fpdf2
