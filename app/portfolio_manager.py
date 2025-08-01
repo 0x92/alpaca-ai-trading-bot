@@ -13,7 +13,7 @@ from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce, OrderType
 
 from .config import load_env
-from .research_engine import get_research
+from .research_engine import get_ai_research
 from .logger import get_logger
 from .benchmark import (
     get_latest_benchmark_price,
@@ -516,8 +516,9 @@ class MultiPortfolioManager:
         """Get research and ask OpenAI for a trade decision for each portfolio."""
         self.update_benchmark()
         for p in self.portfolios:
-            research = get_research(symbol)
-            p.log_event("research", f"fetched research for {symbol}")
+            research = get_ai_research(symbol)
+            topics = [k for k in research.keys() if k != "symbol"]
+            p.log_event("research", f"fetched {', '.join(topics)} for {symbol}")
             decision = get_strategy_from_openai(p, research, p.strategy_type)
             p.log_event("decision", decision)
             logger.info("%s decision %s", p.name, decision)

@@ -1,5 +1,6 @@
 import os
 import requests
+import openai
 from textblob import TextBlob
 
 from .config import load_env
@@ -11,6 +12,7 @@ logger = get_logger(__name__)
 ENV = load_env()
 FINNHUB_API_KEY = ENV.get("FINNHUB_API_KEY")
 NEWS_API_KEY = ENV.get("NEWS_API_KEY")
+openai.api_key = ENV.get("OPENAI_API_KEY")
 
 
 def get_fundamentals_yahoo(symbol: str) -> dict:
@@ -89,3 +91,41 @@ def get_research(symbol: str) -> dict:
         "news": news,
         "sentiment": sentiment,
     }
+
+
+def select_research_topics(symbol: str) -> list[str]:
+    """Use OpenAI to determine which research types to fetch."""
+    if not openai.api_key or "your_openai_api_key" in openai.api_key:
+        return ["fundamentals", "news", "sentiment"]
+    prompt = (
+        "For analyzing the stock {symbol}, which of the following research types "
+        "are most relevant: fundamentals, news, sentiment? "
+        "Respond with a comma separated list of the chosen types only."
+    ).format(symbol=symbol)
+    try:
+        resp = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+        )
+        text = resp["choices"][0]["message"]["content"].lower()
+        return [t.strip() for t in text.split(",") if t.strip()]
+    except Exception as exc:
+        logger.error("OpenAI research topic selection error: %s", exc)
+        return ["fundamentals", "news", "sentiment"]
+
+
+def get_ai_research(symbol: str) -> dict:
+    """Fetch research based on an AI-selected set of topics."""
+    topics = select_research_topics(symbol)
+    result = {"symbol": symbol}
+    news_items = []
+    if "fundamentals" in topics:
+        result["fundamentals"] = get_fundamentals_yahoo(symbol)
+    if "news" in topics or "sentiment" in topics:
+        news_items = get_news_finnhub(symbol)
+    if "news" in topics:
+        result["news"] = news_items
+    if "sentiment" in topics:
+        result["sentiment"] = analyze_sentiment(news_items)
+    return result
