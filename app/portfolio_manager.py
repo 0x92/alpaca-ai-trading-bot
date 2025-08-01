@@ -116,6 +116,8 @@ class Portfolio:
         try:
             order = self.client.submit_order(order_data)
             order_dict = order.model_dump()
+            order_dict["notes"] = ""
+            order_dict["tags"] = []
             if side.lower() == "buy":
                 self.holdings[symbol] = self.holdings.get(symbol, 0) + qty
                 price_info = get_latest_price(symbol)
@@ -349,6 +351,30 @@ class Portfolio:
                 self.holdings.pop(symbol, None)
                 self.avg_prices.pop(symbol, None)
 
+
+    def find_trade(self, trade_id: str) -> Optional[Dict]:
+        """Return trade dictionary matching id or None."""
+        for trade in self.history:
+            tid = str(trade.get("id") or trade.get("client_order_id"))
+            if tid == trade_id:
+                return trade
+        return None
+
+    def set_trade_notes(self, trade_id: str, notes: str) -> bool:
+        """Set notes for a given trade."""
+        trade = self.find_trade(trade_id)
+        if not trade:
+            return False
+        trade["notes"] = notes
+        return True
+
+    def set_trade_tags(self, trade_id: str, tags: List[str]) -> bool:
+        """Set tags list for a trade."""
+        trade = self.find_trade(trade_id)
+        if not trade:
+            return False
+        trade["tags"] = tags
+        return True
 
 def get_strategy_from_openai(
     portfolio: Portfolio, research: dict, strategy_type: str = "default"

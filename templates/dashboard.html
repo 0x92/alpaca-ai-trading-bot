@@ -164,9 +164,15 @@
         <div class="h-24 mt-1">
             <canvas id="trade-chart-{{ p.name }}"></canvas>
         </div>
+        <input type="text" id="trade-filter-{{ p.name }}" placeholder="Search notes/tags" class="border px-1 py-0 text-xs mt-1" />
         <p id="trade-summary-{{ p.name }}" class="text-xs mt-1"></p>
         <ul class="list-disc list-inside history cursor-pointer"></ul>
         <pre id="trade-details-{{ p.name }}" class="text-xs bg-gray-100 mt-1"></pre>
+        <div class="mt-1 text-xs space-x-1">
+            <input type="text" id="note-input-{{ p.name }}" placeholder="Note" class="border px-1 py-0" />
+            <input type="text" id="tags-input-{{ p.name }}" placeholder="tags" class="border px-1 py-0" />
+            <button type="button" onclick="saveTradeMeta('{{ p.name }}')" class="bg-blue-500 text-white px-1 rounded">Save</button>
+        </div>
         <div class="h-32 mt-1">
             <canvas id="trade-price-{{ p.name }}"></canvas>
         </div>

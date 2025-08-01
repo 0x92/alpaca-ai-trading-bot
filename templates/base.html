@@ -23,6 +23,7 @@
         const allocStore = {};
         const pnlStore = {};
         const activityStore = {};
+        const currentTradeIndex = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -183,11 +184,21 @@
             if (!list) return;
             list.innerHTML = '';
             const trades = tradeStore[name] || [];
-            if (trades.length === 0) {
+            const filterEl = document.getElementById('trade-filter-' + name);
+            let items = trades.slice();
+            if (filterEl && filterEl.value) {
+                const term = filterEl.value.toLowerCase();
+                items = items.filter(t => {
+                    const notes = (t.notes || '').toLowerCase();
+                    const tags = Array.isArray(t.tags) ? t.tags.join(' ').toLowerCase() : '';
+                    return notes.includes(term) || tags.includes(term);
+                });
+            }
+            if (items.length === 0) {
                 list.innerHTML = '<li>No trades yet.</li>';
                 return;
             }
-            trades.forEach((t, idx) => {
+            items.forEach((t, idx) => {
                 const item = document.createElement('li');
                 item.className = 'cursor-pointer';
                 item.dataset.index = idx;
@@ -229,10 +240,15 @@
 
         async function showTradeDetails(name, idx) {
             const trade = (tradeStore[name] || [])[idx];
+            currentTradeIndex[name] = idx;
             const el = document.getElementById('trade-details-' + name);
             if (el && trade) {
                 el.textContent = JSON.stringify(trade, null, 2);
             }
+            const noteEl = document.getElementById('note-input-' + name);
+            if (noteEl) noteEl.value = trade && trade.notes ? trade.notes : '';
+            const tagEl = document.getElementById('tags-input-' + name);
+            if (tagEl) tagEl.value = (trade && trade.tags ? trade.tags.join(',') : '');
             const tid = trade.id || trade.client_order_id;
             if (!tid) return;
             try {
@@ -255,6 +271,35 @@
                 alert(JSON.stringify(data, null, 2));
             } catch (err) {
                 console.error('explainer failed', err);
+            }
+        }
+
+        async function saveTradeMeta(name) {
+            const idx = currentTradeIndex[name];
+            const trade = (tradeStore[name] || [])[idx];
+            if (!trade) return;
+            const tid = trade.id || trade.client_order_id;
+            if (!tid) return;
+            const noteEl = document.getElementById('note-input-' + name);
+            const tagEl = document.getElementById('tags-input-' + name);
+            const notes = noteEl ? noteEl.value : '';
+            const tags = tagEl ? tagEl.value : '';
+            try {
+                await fetch(`/api/trade/${tid}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes })
+                });
+                await fetch(`/api/trade/${tid}/tags`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tags })
+                });
+                trade.notes = notes;
+                trade.tags = tags.split(',').map(t => t.trim()).filter(t => t);
+                renderTradeList(name);
+            } catch (err) {
+                console.error('save meta failed', err);
             }
         }
 
@@ -397,6 +442,11 @@
             if (pnlSelect) pnlSelect.addEventListener('change', () => loadPnl(name));
         }
 
+        function attachTradeHandlers(name) {
+            const search = document.getElementById('trade-filter-' + name);
+            if (search) search.addEventListener('input', () => renderTradeList(name));
+        }
+
         function updatePortfolios(data) {
             if (!Array.isArray(data)) return;
             data.forEach(p => {
@@ -474,6 +524,7 @@
                 allocStore[p.name] = p.allocation || [];
                 attachPositionHandlers(p.name);
                 attachActivityHandlers(p.name);
+                attachTradeHandlers(p.name);
                 renderPositions(p.name);
                 renderOrders(p.name);
                 renderAllocation(p.name);
@@ -502,6 +553,7 @@
                 portfolios.forEach(p => {
                     attachPositionHandlers(p.name);
                     attachActivityHandlers(p.name);
+                    attachTradeHandlers(p.name);
                     loadTradeHistory(p.name);
                     renderAllocation(p.name);
                     loadPnl(p.name);
