@@ -19,6 +19,10 @@
     <input type="text" name="symbols" placeholder="Symbols (comma or auto)" class="border px-1 py-0" />
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Step</button>
 </form>
+<form method="post" action="{{ url_for('buy') }}" class="mb-4 space-x-2">
+    <input type="text" name="symbols" placeholder="Symbols (comma or auto)" class="border px-1 py-0" />
+    <button type="submit" class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">Buy Only</button>
+</form>
 <div class="mb-4">
     <a href="{{ url_for('compare_view') }}" class="text-blue-500">Compare Portfolios</a>
 </div>

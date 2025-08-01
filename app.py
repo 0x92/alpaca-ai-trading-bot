@@ -135,6 +135,20 @@ def step():
     return redirect(url_for("index"))
 
 
+@app.route("/buy", methods=["POST"])
+def buy():
+    """Look for buy opportunities only and place orders."""
+    logger.info("Scanning for buy opportunities")
+    symbols_param = request.form.get("symbols", "").strip()
+    symbols = None
+    if symbols_param:
+        symbols = [s.strip().upper() for s in symbols_param.split(",") if s.strip()]
+    manager.buy_opportunities(symbols)
+    portfolios = _portfolio_snapshot()
+    socketio.emit("trade_update", portfolios)
+    return redirect(url_for("index"))
+
+
 @app.route("/portfolio/<name>/set_strategy", methods=["POST"])
 def set_strategy(name: str):
     strategy = request.form.get("strategy_type", "default")

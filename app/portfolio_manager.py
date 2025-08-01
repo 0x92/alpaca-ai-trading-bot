@@ -551,3 +551,35 @@ class MultiPortfolioManager:
                         p.check_risk(float(value))
                 except Exception as exc:
                     logger.error("Failed to fetch account info for %s: %s", p.name, exc)
+
+    def buy_opportunities(self, symbols: Union[str, Sequence[str], None] = None) -> None:
+        """Scan symbols for buy signals only and execute market orders."""
+        self.update_benchmark()
+
+        if symbols is None or (isinstance(symbols, str) and symbols.lower() == "auto"):
+            symbols_list = get_trending_symbols()
+        else:
+            symbols_list = [symbols] if isinstance(symbols, str) else list(symbols)
+
+        for symbol in symbols_list:
+            for p in self.portfolios:
+                research = get_ai_research(symbol)
+                topics = [k for k in research.keys() if k != "symbol"]
+                p.log_event("research", f"fetched {', '.join(topics)} for {symbol}")
+                decision = get_strategy_from_openai(p, research, p.strategy_type)
+                p.log_event("decision", decision)
+                logger.info("%s decision %s", p.name, decision)
+                if decision.lower().startswith("buy"):
+                    qty = p.smart_allocation(symbol)
+                    if qty > 0:
+                        try:
+                            p.place_order(symbol, qty, "buy")
+                        except Exception as exc:
+                            logger.error("Failed to place order for %s: %s", p.name, exc)
+                try:
+                    info = p.get_account_info()
+                    value = info.get("portfolio_value")
+                    if value is not None:
+                        p.check_risk(float(value))
+                except Exception as exc:
+                    logger.error("Failed to fetch account info for %s: %s", p.name, exc)

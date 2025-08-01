@@ -49,6 +49,8 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    separated list of symbols. If left blank, the simulator will trade a set of
    trending tickers automatically. Set `TRENDING_SOURCE=openai` in your `.env`
    file to let ChatGPT suggest trending symbols instead of using Yahoo Finance.
+   The **Buy Only** button works similarly but ignores sell signals and only
+   executes trades when a buy recommendation is returned.
 
 ## Custom Prompt Editor
 
