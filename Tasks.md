@@ -424,6 +424,16 @@ Nach diesem Task ist die gesamte App konsistent und professionell darauf ausgele
 Ein Nutzer kann beliebig viele Bots/Portfolios gleichzeitig anlegen, **muss aber für jedes einen eigenen API Key bereitstellen**.
 
 ---
+### Task 32: Manual Trade Entry
+
+- [ ] **Backend**:
+    - [ ] Route `/portfolio/<name>/manual_trade` nimmt `symbol`, `qty` und `side` entgegen und führt eine Market-Order aus. Danach wird `_portfolio_snapshot()` aktualisiert und ein `trade_update` gesendet.
+- [ ] **Frontend**:
+    - [ ] Formular pro Portfolio mit Symbol, Menge und Seite (buy/sell). Einreichung an die neue Route.
+    - [ ] Manuelle Trades werden in der History mit `[M]` markiert.
+- [ ] **Docs**:
+    - [ ] README und Dashboard-Anleitung um den manuellen Handel ergänzen.
+
 
 
 ```

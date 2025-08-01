@@ -201,6 +201,30 @@ def set_alerts(name: str):
     return redirect(url_for("index"))
 
 
+@app.route("/portfolio/<name>/manual_trade", methods=["POST"])
+def manual_trade(name: str):
+    """Execute a user initiated market order."""
+    symbol = request.form.get("symbol", "").upper()
+    qty = request.form.get("qty", type=float)
+    side = request.form.get("side", "buy")
+    if not symbol or not qty:
+        return redirect(url_for("index"))
+    for p in manager.portfolios:
+        if p.name == name:
+            try:
+                p.place_order(symbol, qty, side)
+                if p.history:
+                    p.history[-1]["source"] = "manual"
+                p.log_event("manual", f"{side} {qty} {symbol}")
+            except Exception as exc:
+                logger.error("Manual trade failed for %s: %s", name, exc)
+            break
+    manager.save_to_file(PORTFOLIO_FILE)
+    portfolios = _portfolio_snapshot()
+    socketio.emit("trade_update", portfolios)
+    return redirect(url_for("index"))
+
+
 @app.route("/portfolio/<name>/preview_prompt", methods=["POST"])
 def preview_prompt(name: str):
     prompt = request.form.get("custom_prompt", "")
@@ -232,6 +256,29 @@ def api_orders(name: str):
         if p.name == name:
             return {"orders": p.get_orders(status=status)}
     return {"orders": []}
+
+
+@app.route("/api/portfolio/<name>/liquidate", methods=["POST"])
+def api_liquidate(name: str):
+    """Liquidate a single position manually."""
+    data = request.get_json(silent=True) or {}
+    symbol = data.get("symbol") or request.form.get("symbol")
+    if not symbol:
+        return {"error": "symbol_required"}, 400
+    for p in manager.portfolios:
+        if p.name == name:
+            qty = p.holdings.get(symbol, 0)
+            if qty <= 0:
+                return {"error": "position_not_found"}, 404
+            try:
+                p.place_order(symbol, qty, "sell")
+            except Exception as exc:
+                logger.error("Manual liquidation failed for %s: %s", p.name, exc)
+                return {"error": str(exc)}, 500
+            portfolios = _portfolio_snapshot()
+            socketio.emit("trade_update", portfolios)
+            return {"status": "ok"}
+    return {"error": "not_found"}, 404
 
 
 @app.route("/api/portfolio/<name>/allocation")

@@ -78,6 +78,19 @@
             window.location = `/api/portfolio/${name}/export?format=${fmt}`;
         }
 
+        async function liquidatePosition(name, symbol) {
+            if (!confirm(`Liquidate ${symbol}?`)) return;
+            try {
+                await fetch(`/api/portfolio/${name}/liquidate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol })
+                });
+            } catch (err) {
+                console.error('liquidate failed', err);
+            }
+        }
+
         function createChart(name, labels, values, benchValues) {
             const ctx = document.getElementById('chart-' + name).getContext('2d');
             charts[name] = new Chart(ctx, {
@@ -148,19 +161,32 @@
             if (items.length === 0) {
                 const row = document.createElement('tr');
                 const td = document.createElement('td');
-                td.colSpan = 5;
+                td.colSpan = 6;
                 td.textContent = 'No positions';
                 row.appendChild(td);
                 tbody.appendChild(row);
             } else {
                 items.forEach(pos => {
                     const row = document.createElement('tr');
-                    row.innerHTML =
-                        `<td class="border px-1">${pos.symbol}</td>` +
-                        `<td class="border px-1">${pos.qty}</td>` +
-                        `<td class="border px-1">${pos.price.toFixed(2)}</td>` +
-                        `<td class="border px-1">${pos.avg_price.toFixed(2)}</td>` +
-                        `<td class="border px-1">${pos.pnl.toFixed(2)} (${(pos.pnl_pct*100).toFixed(2)}%)</td>`;
+                    function cell(txt) {
+                        const td = document.createElement('td');
+                        td.className = 'border px-1';
+                        td.textContent = txt;
+                        return td;
+                    }
+                    row.appendChild(cell(pos.symbol));
+                    row.appendChild(cell(pos.qty));
+                    row.appendChild(cell(pos.price.toFixed(2)));
+                    row.appendChild(cell(pos.avg_price.toFixed(2)));
+                    row.appendChild(cell(`${pos.pnl.toFixed(2)} (${(pos.pnl_pct*100).toFixed(2)}%)`));
+                    const actionTd = document.createElement('td');
+                    actionTd.className = 'border px-1';
+                    const btn = document.createElement('button');
+                    btn.textContent = 'Sell';
+                    btn.className = 'text-red-500';
+                    btn.addEventListener('click', () => liquidatePosition(name, pos.symbol));
+                    actionTd.appendChild(btn);
+                    row.appendChild(actionTd);
                     tbody.appendChild(row);
                 });
             }
@@ -235,7 +261,8 @@
                 const item = document.createElement('li');
                 item.className = 'cursor-pointer';
                 item.dataset.index = idx;
-                item.textContent = `${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
+                const prefix = t.source === 'manual' ? '[M] ' : '';
+                item.textContent = `${prefix}${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
                 item.addEventListener('click', () => showTradeDetails(name, idx));
                 const btn = document.createElement('button');
                 btn.textContent = 'Warum?';
