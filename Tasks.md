@@ -176,13 +176,6 @@
 ---
 
 
-Klar, hier kommen **weitere fortgeschrittene Tasks ab Task 15**, die das Dashboard richtig “next level” machen!
-Das Ziel: **Maximaler Einblick in jeden Bot und jede Position, coole Visualisierungen, Transparenz, Nutzerkomfort und “Geek Value”.**
-Alle Tasks sind so formuliert, dass sie einzeln umgesetzt werden können. Vieles davon ist auch Inspiration für späteres Premium- oder Multi-User-Feature-Set!
-
----
-
-```markdown
 ### Task 15: Live-Positionsübersicht pro Portfolio (Bot)
 
 - [x] Baue eine Live-Ansicht aller offenen Positionen je Portfolio ins Dashboard:
@@ -194,124 +187,184 @@ Alle Tasks sind so formuliert, dass sie einzeln umgesetzt werden können. Vieles
 
 ### Task 16: Offene Trades/Orders in Echtzeit visualisieren
 
-- [ ] Zeige alle aktiven offenen Orders (pending trades) pro Portfolio übersichtlich an.
-- [ ] Visualisiere den Status (offen, ausgeführt, teilweise, abgelehnt) mit Icon/Farbe.
-- [ ] Zeige geplante Order-Strategien (z.B. Stop Loss/Take Profit) direkt im Dashboard an.
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/portfolio/<name>/orders?status=open`  
+      Liefert alle offenen (pending) Orders je Portfolio.
+    - [ ] Backend-Logik, um Order-Status zu überwachen und Änderungen an das Frontend zu pushen.
+- [ ] **Frontend**:  
+    - [ ] Visualisierung aller offenen Orders im Dashboard (mit Status, Typ, Symbol, Zielkurs, Menge).
+    - [ ] Farbcodierung und Icons je Status.
+    - [ ] Echtzeit-Update per SocketIO/Websocket.
 
 ---
 
 ### Task 17: Trade-Historie mit erweiterten Charts
 
-- [ ] Integriere in jedem Portfolio eine Timeline (Chart.js) der durchgeführten Trades.
-- [ ] Zeige auf Klick alle Details (Order-Parameter, Zeitpunkt, Kurs, Resultat, Strategie).
-- [ ] Ermögliche einen Drill-Down von Summenstatistik → Einzeltrade-Ansicht.
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/portfolio/<name>/trade_history`  
+      Liefert alle abgeschlossenen Trades mit Details (Zeitpunkt, Entry/Exit, Resultat etc.).
+    - [ ] Option: Serverseitige Filter- und Suchfunktion.
+- [ ] **Frontend**:  
+    - [ ] Integriere Chart.js-Trade-Timeline.
+    - [ ] Drilldown-Funktion: Beim Klick auf einen Trade Details anzeigen.
+    - [ ] Summenstatistiken und Einzeltrade-View.
 
 ---
 
 ### Task 18: Kurs- und Performance-Chart je Trade
 
-- [ ] Für jede offene Position zeige einen Chart (Chart.js) mit dem Kursverlauf des gehandelten Assets seit Einstieg.
-- [ ] Markiere Einstiegs- und ggf. Ausstiegspunkte, Stop-Loss/Take-Profit-Linien.
-- [ ] Visualisiere den aktuellen Gewinn/Verlust live im Chart.
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/trade/<id>/price_history`  
+      Liefert den Kursverlauf des gehandelten Assets für den Zeitraum des Trades.
+    - [ ] Backend-Logik: Hole historische Preisdaten von Datenanbieter (z.B. Yahoo, Finnhub).
+- [ ] **Frontend**:  
+    - [ ] Chart.js für Kursverlauf pro Trade/Position.
+    - [ ] Visualisierung von Einstiegs-, Ausstiegs-, SL/TP-Punkten und aktuellem Kurs.
 
 ---
 
 ### Task 19: Investitionsübersicht & Asset-Allokation
 
-- [ ] Zeige pro Bot ein “Investment Breakdown” als Tortendiagramm (Pie Chart):
-    - [ ] Prozentuale/absolute Verteilung aller investierten Mittel auf die einzelnen Assets
-    - [ ] Hebe große Positionen oder Klumpenrisiken visuell hervor.
+- [ ] **Backend**:  
+    - [ ] Berechne und aggregiere die aktuelle Verteilung aller Investments je Portfolio.
+    - [ ] API-Route `/api/portfolio/<name>/allocation`  
+      Liefert Allokation als Liste/Prozentwerte je Asset.
+- [ ] **Frontend**:  
+    - [ ] Pie Chart (Chart.js) für Investment Breakdown im Dashboard.
+    - [ ] Klumpenrisiken visuell hervorheben.
 
 ---
 
 ### Task 20: Gewinn/Verlust-Diagramme (PnL Analysis)
 
-- [ ] Zeige pro Bot folgende Diagramme:
-    - [ ] Tages- und Wochenergebnis (PnL) als Liniendiagramm
-    - [ ] Historische Gesamtperformance (Equity Curve)
-    - [ ] Top/Flop-Trades nach Gewinn/Verlust (Bar Chart)
-- [ ] Ermögliche den Zeitraum zu filtern (Tag, Woche, Monat, Gesamt).
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/portfolio/<name>/pnl_history?interval=day|week|month`
+      Liefert PnL-Zeitreihe je Portfolio.
+    - [ ] Berechne Top/Flop-Trades serverseitig.
+- [ ] **Frontend**:  
+    - [ ] Chart.js-Diagramme für Tages-/Wochen-/Monatsergebnis und Equity Curve.
+    - [ ] Bar-Chart für Top-/Flop-Trades.
+    - [ ] Zeitraumauswahl im UI.
 
 ---
 
 ### Task 21: Aktivitätsfeed & Log-Viewer
 
-- [ ] Integriere einen Feed, der alle Aktionen des Bots chronologisch auflistet:
-    - [ ] Trades, Orderplatzierungen, Research-Events, Strategie-Wechsel
-    - [ ] Live-Updates ohne Reload (SocketIO)
-    - [ ] Filter nach Typ (nur Trades, nur Warnungen, nur Systeminfos)
+- [ ] **Backend**:  
+    - [ ] Logik, die alle Aktionen (Trades, Orders, Research, Strategie-Wechsel) pro Portfolio als Log speichert.
+    - [ ] API-Route `/api/portfolio/<name>/activity_log?type=all|trades|alerts`
+      Liefert chronologischen Feed.
+    - [ ] Option: Events per SocketIO pushen.
+- [ ] **Frontend**:  
+    - [ ] Aktivitätsfeed im Dashboard, filterbar nach Typ.
+    - [ ] Live-Update ohne Reload.
 
 ---
 
 ### Task 22: Bot-KI-Entscheidungen transparent machen (Decision-Explainer)
 
-- [ ] Füge einen “Warum hat der Bot das gemacht?”-Button hinzu:
-    - [ ] Zeige für jede Aktion die genutzte Strategie und das OpenAI-Prompt inkl. Antwort.
-    - [ ] Optional: Visualisiere welche Research-Daten zu dieser Entscheidung geführt haben.
-    - [ ] “KI-Logbuch” pro Bot anlegen.
+- [ ] **Backend**:  
+    - [ ] Speichere Prompt, Research-Input und KI-Antwort zu jeder Trading-Entscheidung im Portfolio/Trade-Objekt.
+    - [ ] API-Route `/api/trade/<id>/decision_explainer`  
+      Liefert alle Entscheidungsdaten für einen Trade.
+- [ ] **Frontend**:  
+    - [ ] Button “Warum?” pro Trade/Order.
+    - [ ] Popup/Modal mit Prompt, Input und KI-Output.
+    - [ ] Optional: Visualisiere Einflussfaktoren aus dem Research.
 
 ---
 
 ### Task 23: Alerts und Schwellenwert-Warnungen
 
-- [ ] Implementiere ein Alert-System:
-    - [ ] Gewinn/Verlust-Thresholds pro Trade/Portfolio einstellbar (z.B. Alarm bei -10% Drawdown)
-    - [ ] Visuelle und akustische Warnungen im Dashboard
-    - [ ] Optionale Benachrichtigungen per E-Mail/Push
+- [ ] **Backend**:  
+    - [ ] Felder für Schwellenwerte im Portfolio/Trade (max. Drawdown, PnL-Limits).
+    - [ ] Überwache in der Trade- und Positionslogik, ob Schwellenwerte überschritten werden.
+    - [ ] API-Route `/api/portfolio/<name>/alerts`
+    - [ ] Push Alerts per SocketIO und ggf. E-Mail/Push.
+- [ ] **Frontend**:  
+    - [ ] Anzeigen und Konfigurieren von Alerts im Dashboard.
+    - [ ] Visual/Akustisch (z.B. Banner, Sound).
 
 ---
 
 ### Task 24: User-Notizen & Tagging pro Trade
 
-- [ ] Erlaube dem Nutzer zu jedem Trade/Position/Portfolio eigene Notizen zu hinterlegen.
-- [ ] Trades können mit Tags (z.B. “Momentum”, “News”, “KI-Tipp”) versehen werden.
-- [ ] Tags und Notizen im UI und Export anzeigen.
+- [ ] **Backend**:  
+    - [ ] Datenmodell: Notiz- und Tag-Felder an Trade-Objekt.
+    - [ ] API-Routen zum Hinzufügen, Bearbeiten, Löschen von Notizen/Tags (`/api/trade/<id>/notes`, `/api/trade/<id>/tags`).
+- [ ] **Frontend**:  
+    - [ ] Notiz-Eingabefeld und Tag-Widget pro Trade/Position im UI.
+    - [ ] Anzeige und Suche nach Tags/Notizen.
 
 ---
 
 ### Task 25: Multi-Dashboard-View & Bot-Vergleich
 
-- [ ] Erlaube die parallele Anzeige mehrerer Dashboards (z.B. Split View für 2 Bots)
-    - [ ] Direktvergleich wichtiger Kennzahlen (Gewinn/Verlust, Allokation, Risikolevel)
-    - [ ] Heatmap: Welcher Bot performt am besten?
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/portfolios/compare?names=Bot1,Bot2`
+      Liefert Kernmetriken mehrerer Bots für Vergleich (Equity, PnL, Allokation, Risiko etc.).
+- [ ] **Frontend**:  
+    - [ ] Split View/Switch zwischen mehreren Dashboards.
+    - [ ] Heatmap/Tabellen für direkten Vergleich.
 
 ---
 
 ### Task 26: Export aller Dashboard-Daten
 
-- [ ] Exportiere den aktuellen Zustand aller Dashboards (als CSV, JSON, PDF)
-- [ ] Exportoption für einzelne Charts, Tabellen, Trade-Logs, Aktivitätsfeeds
+- [ ] **Backend**:  
+    - [ ] Export-Logik für CSV, JSON, PDF aller Portfolio-/Trade-/Chart-Daten.
+    - [ ] API-Route `/api/portfolio/<name>/export?format=csv|json|pdf`
+- [ ] **Frontend**:  
+    - [ ] Export-Button im Dashboard, Auswahl von Bereich und Format.
 
 ---
 
 ### Task 27: Dark Mode & Custom Themes
 
-- [ ] Ermögliche einen Dark Mode und mehrere Color Themes für das Dashboard.
-- [ ] Speichere die Einstellung im User-Profil / Browser Storage
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/user/<id>/theme`  
+      Speichert/fetch Theme-Einstellung pro User (optional: DB).
+- [ ] **Frontend**:  
+    - [ ] Dark Mode Switch, Auswahl Themes.
+    - [ ] Speicherung im Profil/Local Storage.
 
 ---
 
 ### Task 28: Realtime-Benchmark-Overlay
 
-- [ ] Zeige pro Asset und Portfolio einen Overlay-Linienchart, der die eigene Performance mit dem Marktindex (S&P500, DAX, BTC etc.) live vergleicht
+- [ ] **Backend**:  
+    - [ ] API-Route `/api/portfolio/<name>/benchmark_overlay?symbol=SPY`
+      Liefert eigene Performance + Benchmark-Daten für Overlay-Chart.
+    - [ ] Regelmäßiges Updaten mit externen Kursdaten.
+- [ ] **Frontend**:  
+    - [ ] Overlay-Chart je Asset/Portfolio mit Portfolio vs. Index-Linie.
+    - [ ] Auswahl Benchmark im UI.
 
 ---
 
 ### Task 29: Mobile-optimierte Dashboard-Ansicht
 
-- [ ] Responsive Redesign aller Dashboards und Charts
-- [ ] Touch-freundliche Bedienung
-- [ ] Mobile-spezifische Features wie “Swipe zum Portfolio-Wechsel”
+- [ ] **Backend**:  
+    - [ ] Sicherstellen, dass alle API-Routen und Datenformate auch mobil performant nutzbar sind.
+- [ ] **Frontend**:  
+    - [ ] Responsive Redesign aller UI-Komponenten (TailwindCSS, Media Queries).
+    - [ ] Touch-optimierte Bedienelemente.
+    - [ ] Mobile-spezifische Features, z.B. Swipe für Portfolio-Wechsel.
 
 ---
 
 ### Task 30: Advanced-Analytics & “What-If”-Simulation
 
-- [ ] Simuliere, wie sich der Gewinn/Verlust entwickelt hätte, wenn der Bot anders entschieden hätte (“What-If-Mode”)
-- [ ] Szenarien vergleichbar anzeigen (z.B. Buy&Hold, KI, Zufall)
-- [ ] Visualisierung der Ergebnisse als Overlay/Chart
+- [ ] **Backend**:  
+    - [ ] Simulation-Logik für alternative Szenarien (Buy&Hold, KI, Zufall etc.).
+    - [ ] API-Route `/api/portfolio/<name>/whatif?scenario=hold|ki|random`
+      Liefert simulierte PnL-Kurven für verschiedene Szenarien.
+- [ ] **Frontend**:  
+    - [ ] Visualisierung (Chart.js) der realen und simulierten Szenarien als Overlay.
+    - [ ] UI zur Auswahl und zum Vergleich verschiedener What-If-Analysen.
 
 ---
+
 ```
 
 **Jeder Task ist optional und kann als Epic, Feature, oder einzelne Issues/Stories behandelt werden!**
