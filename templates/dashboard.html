@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Portfolios</h1>
+<h1 class="text-2xl font-bold mb-4">Portfolios
+    <span class="info-icon text-blue-500 ml-1">&#9432;
+        <span class="tooltip">Manage your portfolios here.</span>
+    </span>
+</h1>
 <form method="post" action="{{ url_for('create_portfolio') }}" class="mb-4 space-x-2">
     <input type="text" name="name" placeholder="Name" required class="border px-1 py-0" />
     <input type="text" name="api_key" placeholder="API Key" required class="border px-1 py-0" />
@@ -13,18 +17,30 @@
         {% endfor %}
     </select>
     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">Add</button>
+    <span class="info-icon text-blue-500 ml-1">&#9432;
+        <span class="tooltip">Create a new portfolio with unique Alpaca API credentials.</span>
+    </span>
     <span class="text-xs text-gray-600">One API key = one portfolio</span>
 </form>
 <form method="post" action="{{ url_for('step') }}" class="mb-4 space-x-2">
     <input type="text" name="symbols" placeholder="Symbols (comma or auto)" class="border px-1 py-0" />
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Step</button>
+    <span class="info-icon text-blue-500 ml-1">&#9432;
+        <span class="tooltip">Run one simulation step for all portfolios.</span>
+    </span>
 </form>
 <form method="post" action="{{ url_for('buy') }}" class="mb-4 space-x-2">
     <input type="text" name="symbols" placeholder="Symbols (comma or auto)" class="border px-1 py-0" />
     <button type="submit" class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">Buy Only</button>
+    <span class="info-icon text-blue-500 ml-1">&#9432;
+        <span class="tooltip">Only execute buy orders when conditions are met.</span>
+    </span>
 </form>
 <div class="mb-4">
     <a href="{{ url_for('compare_view') }}" class="text-blue-500">Compare Portfolios</a>
+    <span class="info-icon text-blue-500 ml-1">&#9432;
+        <span class="tooltip">Open a side-by-side comparison of your portfolios.</span>
+    </span>
 </div>
 <div class="space-y-4">
     {% for p in portfolios %}
@@ -47,7 +63,11 @@
             </label>
         </form>
         <form method="post" action="{{ url_for('set_prompt', name=p.name) }}" class="my-2">
-            <label class="text-sm font-semibold">Custom Prompt:</label>
+            <label class="text-sm font-semibold">Custom Prompt:
+                <span class="info-icon text-blue-500 ml-1">&#9432;
+                    <span class="tooltip">Define or adjust the OpenAI prompt used for decisions.</span>
+                </span>
+            </label>
             <textarea name="custom_prompt" rows="3" class="border rounded w-full">{{ p.custom_prompt }}</textarea>
             <div class="flex items-center space-x-2 mt-1">
                 <button type="submit" class="bg-purple-500 hover:bg-purple-700 text-white text-xs px-2 py-1 rounded">Save</button>
@@ -93,7 +113,11 @@
         <div class="h-32 mt-2">
             <canvas id="alloc-chart-{{ p.name }}"></canvas>
         </div>
-        <h3 class="font-semibold mt-2">Risk Alerts</h3>
+        <h3 class="font-semibold mt-2">Risk Alerts
+            <span class="info-icon text-blue-500 ml-1">&#9432;
+                <span class="tooltip">Alerts appear here when risk thresholds are triggered.</span>
+            </span>
+        </h3>
         <ul class="list-disc list-inside risk_alerts">
             {% for alert in p.risk_alerts %}
             <li>{{ alert }}</li>

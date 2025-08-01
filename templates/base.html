@@ -8,7 +8,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 p-4">
+    <div class="flex justify-end mb-2">
+        <button id="info-button" class="text-sm text-blue-500 underline">Info</button>
+    </div>
     {% block content %}{% endblock %}
+    <div id="info-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded max-w-lg overflow-y-auto">
+            <button id="info-close" class="text-red-500 float-right">Close</button>
+            <h2 class="text-xl font-bold mb-2">Dashboard Features</h2>
+            <ul class="list-disc ml-5 text-sm space-y-1">
+                <li><b>Add portfolio</b> creates a new portfolio with Alpaca API keys.</li>
+                <li><b>Step</b> runs a simulation step.</li>
+                <li><b>Buy Only</b> searches only for buy opportunities.</li>
+                <li><b>Compare Portfolios</b> opens the comparison view.</li>
+                <li>Inside each portfolio you can adjust strategy, custom prompts and risk alerts and review positions, orders and trades.</li>
+            </ul>
+        </div>
+    </div>
+    <style>
+        .info-icon { position: relative; display: inline-block; cursor: pointer; }
+        .info-icon .tooltip { display: none; position: absolute; left: 1rem; top: 1.25rem; background: rgba(0,0,0,0.8); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: 200px; font-size: 0.75rem; z-index: 50; }
+        .info-icon:hover .tooltip { display: block; }
+    </style>
     <script>
         const socket = io();
         const charts = {};
@@ -565,6 +586,13 @@
                     loadPnl(p.name);
                     loadActivity(p.name);
                 });
+            }
+            const infoBtn = document.getElementById('info-button');
+            const infoClose = document.getElementById('info-close');
+            const infoOverlay = document.getElementById('info-overlay');
+            if (infoBtn && infoClose && infoOverlay) {
+                infoBtn.addEventListener('click', () => infoOverlay.classList.remove('hidden'));
+                infoClose.addEventListener('click', () => infoOverlay.classList.add('hidden'));
             }
         });
     </script>
