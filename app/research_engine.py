@@ -13,6 +13,7 @@ ENV = load_env()
 FINNHUB_API_KEY = ENV.get("FINNHUB_API_KEY")
 NEWS_API_KEY = ENV.get("NEWS_API_KEY")
 openai.api_key = ENV.get("OPENAI_API_KEY")
+TRENDING_SOURCE = ENV.get("TRENDING_SOURCE", "yahoo").lower()
 
 
 def get_fundamentals_yahoo(symbol: str) -> dict:
@@ -101,7 +102,7 @@ def select_research_topics(symbol: str) -> list[str]:
     try:
         client = openai.OpenAI(api_key=openai.api_key)
         resp = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4.1-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
         )
@@ -128,17 +129,42 @@ def get_ai_research(symbol: str) -> dict:
     return result
 
 
-def get_trending_symbols(limit: int = 5) -> list[str]:
-    """Return a list of trending tickers from Yahoo Finance."""
+def _get_trending_from_yahoo(limit: int) -> list[str]:
     url = "https://query1.finance.yahoo.com/v1/finance/trending/US"
+    resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+    resp.raise_for_status()
+    data = resp.json()
+    results = data.get("finance", {}).get("result", [])
+    if results:
+        quotes = results[0].get("quotes", [])
+        return [q.get("symbol") for q in quotes[:limit] if q.get("symbol")]
+    return []
+
+
+def _get_trending_from_openai(limit: int) -> list[str]:
+    prompt = (
+        f"List the top {limit} U.S. stock ticker symbols currently trending "
+        "with high trading volume and media coverage. Respond with a comma "
+        "separated list of tickers only."
+    )
+    client = openai.OpenAI(api_key=openai.api_key)
+    resp = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+    )
+    text = resp.choices[0].message.content
+    return [t.strip().upper() for t in text.split(",") if t.strip()]
+
+
+def get_trending_symbols(limit: int = 5) -> list[str]:
+    """Return a list of trending tickers from Yahoo or OpenAI."""
     try:
-        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-        results = data.get("finance", {}).get("result", [])
-        if results:
-            quotes = results[0].get("quotes", [])
-            return [q.get("symbol") for q in quotes[:limit] if q.get("symbol")]
+        if TRENDING_SOURCE == "openai":
+            if not openai.api_key or "your_openai_api_key" in openai.api_key:
+                return ["AAPL"]
+            return _get_trending_from_openai(limit)
+        return _get_trending_from_yahoo(limit)
     except Exception as exc:
         logger.error("Failed to fetch trending symbols: %s", exc)
-    return ["AAPL"]
+        return ["AAPL"]
