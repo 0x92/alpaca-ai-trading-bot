@@ -3,8 +3,8 @@
     "name": "P1",
     "strategy_type": "momentum",
     "custom_prompt": "",
-    "api_key": "your_alpaca_api_key",
-    "secret_key": "your_alpaca_secret_key",
+    "api_key": "PKPE1ONZT041NZMFQ82G",
+    "secret_key": "eWIrbJdu5rW0ApiZvlYE25AmxwkrVrMYIsqbDlyh",
     "base_url": "https://paper-api.alpaca.markets"
   }
 ]
