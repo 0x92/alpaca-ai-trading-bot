@@ -158,6 +158,36 @@ class Portfolio:
         """Update cached list of open orders."""
         self.open_orders = self.get_orders(status="open")
 
+    def get_allocation(self) -> List[Dict]:
+        """Return current allocation including cash as percentage per asset."""
+        info = self.get_account_info()
+        cash = float(info.get("cash") or 0)
+        total_value = float(info.get("portfolio_value") or 0)
+        holdings_data: List[Dict] = []
+        total_positions = cash
+        for sym, qty in self.holdings.items():
+            price_info = get_latest_price(sym)
+            price = price_info.get("value")
+            if price is None:
+                continue
+            value = qty * price
+            total_positions += value
+            holdings_data.append({"symbol": sym, "value": value})
+
+        # fall back to sum if portfolio value not available
+        if total_value <= 0:
+            total_value = total_positions
+
+        allocation = []
+        for item in holdings_data:
+            pct = item["value"] / total_value * 100 if total_value else 0.0
+            allocation.append({"symbol": item["symbol"], "percent": pct})
+        if cash > 0:
+            pct = cash / total_value * 100 if total_value else 0.0
+            allocation.append({"symbol": "CASH", "percent": pct})
+        allocation.sort(key=lambda x: x["percent"], reverse=True)
+        return allocation
+
     def check_risk(
         self, account_value: float | None = None, simulate: bool = False
     ) -> None:

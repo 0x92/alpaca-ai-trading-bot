@@ -73,6 +73,7 @@ def _portfolio_snapshot():
                 "positions": p.get_positions(),
                 "history": p.history[-5:],
                 "open_orders": p.open_orders,
+                "allocation": p.get_allocation(),
                 "equity": p.equity_curve[-50:],
                 "equity_norm": manager.get_normalized_equity(p)[-50:],
                 "benchmark": bench[-50:],
@@ -161,6 +162,15 @@ def api_orders(name: str):
         if p.name == name:
             return {"orders": p.get_orders(status=status)}
     return {"orders": []}
+
+
+@app.route("/api/portfolio/<name>/allocation")
+def api_allocation(name: str):
+    """Return current asset allocation for a portfolio."""
+    for p in manager.portfolios:
+        if p.name == name:
+            return {"allocation": p.get_allocation()}
+    return {"allocation": []}
 
 
 @app.route("/api/portfolio/<name>/trade_history")
