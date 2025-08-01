@@ -124,7 +124,11 @@ def compare_view():
 @app.route("/step", methods=["POST"])
 def step():
     logger.info("Running simulation step")
-    manager.step_all()
+    symbols_param = request.form.get("symbols", "").strip()
+    symbols = None
+    if symbols_param:
+        symbols = [s.strip().upper() for s in symbols_param.split(",") if s.strip()]
+    manager.step_all(symbols)
     portfolios = _portfolio_snapshot()
     # notify all connected clients with the latest portfolio snapshot
     socketio.emit("trade_update", portfolios)
@@ -408,7 +412,7 @@ def api_trade_tags(trade_id: str):
                 data = request.get_json(silent=True) or {}
                 tags = data.get("tags") or request.form.get("tags", "")
                 if isinstance(tags, str):
-                    tags_list = [t.strip() for t in tags.split(',') if t.strip()]
+                    tags_list = [t.strip() for t in tags.split(",") if t.strip()]
                 else:
                     tags_list = tags if isinstance(tags, list) else []
                 p.set_trade_tags(trade_id, tags_list)
@@ -430,7 +434,9 @@ def create_portfolio():
     base_url = request.form.get("base_url") or ENV.get("ALPACA_BASE_URL")
     if name and api_key and secret_key:
         try:
-            manager.add_portfolio(Portfolio(name, api_key, secret_key, base_url, strategy))
+            manager.add_portfolio(
+                Portfolio(name, api_key, secret_key, base_url, strategy)
+            )
             manager.save_to_file(PORTFOLIO_FILE)
             logger.info("Created portfolio %s", name)
         except ValueError as exc:

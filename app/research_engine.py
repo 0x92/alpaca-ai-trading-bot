@@ -35,9 +35,7 @@ def get_fundamentals_yahoo(symbol: str) -> dict:
 def get_news_finnhub(symbol: str) -> list:
     """Fetch recent news for a symbol from Finnhub or NewsAPI."""
     if FINNHUB_API_KEY:
-        url = (
-            f"https://finnhub.io/api/v1/company-news?symbol={symbol}&from=2020-01-01&to=2020-12-31&token={FINNHUB_API_KEY}"
-        )
+        url = f"https://finnhub.io/api/v1/company-news?symbol={symbol}&from=2020-01-01&to=2020-12-31&token={FINNHUB_API_KEY}"
         try:
             resp = requests.get(url, timeout=10)
             resp.raise_for_status()
@@ -50,9 +48,7 @@ def get_news_finnhub(symbol: str) -> list:
         except Exception as exc:
             logger.error("Finnhub error: %s", exc)
     if NEWS_API_KEY:
-        url = (
-            f"https://newsapi.org/v2/everything?q={symbol}&apiKey={NEWS_API_KEY}"
-        )
+        url = f"https://newsapi.org/v2/everything?q={symbol}&apiKey={NEWS_API_KEY}"
         try:
             resp = requests.get(url, timeout=10)
             resp.raise_for_status()
@@ -130,3 +126,19 @@ def get_ai_research(symbol: str) -> dict:
     if "sentiment" in topics:
         result["sentiment"] = analyze_sentiment(news_items)
     return result
+
+
+def get_trending_symbols(limit: int = 5) -> list[str]:
+    """Return a list of trending tickers from Yahoo Finance."""
+    url = "https://query1.finance.yahoo.com/v1/finance/trending/US"
+    try:
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        results = data.get("finance", {}).get("result", [])
+        if results:
+            quotes = results[0].get("quotes", [])
+            return [q.get("symbol") for q in quotes[:limit] if q.get("symbol")]
+    except Exception as exc:
+        logger.error("Failed to fetch trending symbols: %s", exc)
+    return ["AAPL"]

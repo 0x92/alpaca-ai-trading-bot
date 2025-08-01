@@ -15,7 +15,8 @@
     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">Add</button>
     <span class="text-xs text-gray-600">One API key = one portfolio</span>
 </form>
-<form method="post" action="{{ url_for('step') }}" class="mb-4">
+<form method="post" action="{{ url_for('step') }}" class="mb-4 space-x-2">
+    <input type="text" name="symbols" placeholder="Symbols (comma or auto)" class="border px-1 py-0" />
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Step</button>
 </form>
 <div class="mb-4">
