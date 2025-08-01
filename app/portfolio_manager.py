@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import List, Dict, Callable, Optional
+from typing import List, Dict, Callable, Optional, Sequence, Union
 from pathlib import Path
 from datetime import datetime
 
@@ -13,7 +13,7 @@ from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce, OrderType
 
 from .config import load_env
-from .research_engine import get_ai_research
+from .research_engine import get_ai_research, get_trending_symbols
 from .logger import get_logger
 from .benchmark import (
     get_latest_benchmark_price,
@@ -253,9 +253,7 @@ class Portfolio:
             rule = {"week": "W", "month": "M"}.get(interval, "D")
             values = df["value"].resample(rule).last()
             pnl = values.diff().fillna(0)
-            return [
-                {"time": t.isoformat(), "pnl": float(v)} for t, v in pnl.items()
-            ]
+            return [{"time": t.isoformat(), "pnl": float(v)} for t, v in pnl.items()]
         except Exception as exc:
             logger.error("Failed to compute pnl history for %s: %s", self.name, exc)
             return []
@@ -351,7 +349,6 @@ class Portfolio:
                 self.holdings.pop(symbol, None)
                 self.avg_prices.pop(symbol, None)
 
-
     def find_trade(self, trade_id: str) -> Optional[Dict]:
         """Return trade dictionary matching id or None."""
         for trade in self.history:
@@ -375,6 +372,7 @@ class Portfolio:
             return False
         trade["tags"] = tags
         return True
+
 
 def get_strategy_from_openai(
     portfolio: Portfolio, research: dict, strategy_type: str = "default"
@@ -489,10 +487,7 @@ class MultiPortfolioManager:
         ):
             raise ValueError("invalid_api_credentials")
         for p in self.portfolios:
-            if (
-                p.api_key == portfolio.api_key
-                and p.secret_key == portfolio.secret_key
-            ):
+            if p.api_key == portfolio.api_key and p.secret_key == portfolio.secret_key:
                 raise ValueError("duplicate_api_credentials")
         self.portfolios.append(portfolio)
 
@@ -513,35 +508,46 @@ class MultiPortfolioManager:
     def get_normalized_equity(self, portfolio: Portfolio) -> List[Dict]:
         return normalize_curve(portfolio.equity_curve)
 
-    def step_all(self, symbol: str = "AAPL"):
-        """Get research and ask OpenAI for a trade decision for each portfolio."""
+    def step_all(self, symbols: Union[str, Sequence[str], None] = None):
+        """Get research and ask OpenAI for trade decisions for each portfolio."""
         self.update_benchmark()
-        for p in self.portfolios:
-            research = get_ai_research(symbol)
-            topics = [k for k in research.keys() if k != "symbol"]
-            p.log_event("research", f"fetched {', '.join(topics)} for {symbol}")
-            decision = get_strategy_from_openai(p, research, p.strategy_type)
-            p.log_event("decision", decision)
-            logger.info("%s decision %s", p.name, decision)
-            if decision.lower().startswith("buy"):
-                qty = p.smart_allocation(symbol)
-                if qty > 0:
-                    try:
-                        p.place_order(symbol, qty, "buy")
-                    except Exception as exc:
-                        logger.error("Failed to place order for %s: %s", p.name, exc)
-            elif decision.lower().startswith("sell"):
-                qty = p.holdings.get(symbol, 0)
-                if qty > 0:
-                    try:
-                        p.place_order(symbol, qty, "sell")
-                    except Exception as exc:
-                        logger.error("Failed to place order for %s: %s", p.name, exc)
-            # record latest account value
-            try:
-                info = p.get_account_info()
-                value = info.get("portfolio_value")
-                if value is not None:
-                    p.check_risk(float(value))
-            except Exception as exc:
-                logger.error("Failed to fetch account info for %s: %s", p.name, exc)
+
+        if symbols is None or (isinstance(symbols, str) and symbols.lower() == "auto"):
+            symbols_list = get_trending_symbols()
+        else:
+            symbols_list = [symbols] if isinstance(symbols, str) else list(symbols)
+
+        for symbol in symbols_list:
+            for p in self.portfolios:
+                research = get_ai_research(symbol)
+                topics = [k for k in research.keys() if k != "symbol"]
+                p.log_event("research", f"fetched {', '.join(topics)} for {symbol}")
+                decision = get_strategy_from_openai(p, research, p.strategy_type)
+                p.log_event("decision", decision)
+                logger.info("%s decision %s", p.name, decision)
+                if decision.lower().startswith("buy"):
+                    qty = p.smart_allocation(symbol)
+                    if qty > 0:
+                        try:
+                            p.place_order(symbol, qty, "buy")
+                        except Exception as exc:
+                            logger.error(
+                                "Failed to place order for %s: %s", p.name, exc
+                            )
+                elif decision.lower().startswith("sell"):
+                    qty = p.holdings.get(symbol, 0)
+                    if qty > 0:
+                        try:
+                            p.place_order(symbol, qty, "sell")
+                        except Exception as exc:
+                            logger.error(
+                                "Failed to place order for %s: %s", p.name, exc
+                            )
+                # record latest account value
+                try:
+                    info = p.get_account_info()
+                    value = info.get("portfolio_value")
+                    if value is not None:
+                        p.check_risk(float(value))
+                except Exception as exc:
+                    logger.error("Failed to fetch account info for %s: %s", p.name, exc)
