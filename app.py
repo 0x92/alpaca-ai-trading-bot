@@ -40,7 +40,13 @@ if not manager.portfolios and API_KEY and "your_alpaca_api_key" not in API_KEY:
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
-set_activity_callback(lambda name, evt: socketio.emit("activity_update", {"name": name, "event": evt}, broadcast=True))
+# broadcast activity updates to all connected clients
+set_activity_callback(
+    lambda name, evt: socketio.emit(
+        "activity_update",
+        {"name": name, "event": evt},
+    )
+)
 
 # placeholders required for custom prompts
 REQUIRED_PLACEHOLDERS = ["{strategy_type}", "{portfolio}", "{research}"]
@@ -117,7 +123,8 @@ def step():
     logger.info("Running simulation step")
     manager.step_all()
     portfolios = _portfolio_snapshot()
-    socketio.emit("trade_update", portfolios, broadcast=True)
+    # notify all connected clients with the latest portfolio snapshot
+    socketio.emit("trade_update", portfolios)
     return redirect(url_for("index"))
 
 
