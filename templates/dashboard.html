@@ -4,12 +4,16 @@
 <h1 class="text-2xl font-bold mb-4">Portfolios</h1>
 <form method="post" action="{{ url_for('create_portfolio') }}" class="mb-4 space-x-2">
     <input type="text" name="name" placeholder="Name" required class="border px-1 py-0" />
+    <input type="text" name="api_key" placeholder="API Key" required class="border px-1 py-0" />
+    <input type="text" name="secret_key" placeholder="Secret Key" required class="border px-1 py-0" />
+    <input type="text" name="base_url" placeholder="Base URL" value="https://paper-api.alpaca.markets" class="border px-1 py-0" />
     <select name="strategy_type" class="border rounded px-1 py-0">
         {% for s in ['default', 'momentum', 'mean_reversion'] %}
         <option value="{{ s }}">{{ s }}</option>
         {% endfor %}
     </select>
     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">Add</button>
+    <span class="text-xs text-gray-600">One API key = one portfolio</span>
 </form>
 <form method="post" action="{{ url_for('step') }}" class="mb-4">
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Step</button>
@@ -21,7 +25,9 @@
     {% for p in portfolios %}
     <div id="portfolio-{{ p.name }}" class="bg-white shadow p-4 rounded">
         <div class="flex justify-between items-center">
-            <h2 class="text-xl font-semibold">{{ p.name }}</h2>
+            <h2 class="text-xl font-semibold">{{ p.name }}
+                <span class="text-xs text-gray-500">{{ p.key_hint }}</span>
+            </h2>
             <form method="post" action="{{ url_for('delete_portfolio', name=p.name) }}">
                 <button type="submit" class="text-red-500 text-sm">Delete</button>
             </form>

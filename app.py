@@ -32,11 +32,13 @@ manager = MultiPortfolioManager()
 logger = get_logger(__name__)
 
 # load persisted portfolios or create defaults if none exist
-manager.load_from_file(PORTFOLIO_FILE, API_KEY, SECRET_KEY, BASE_URL)
+manager.load_from_file(PORTFOLIO_FILE)
 if not manager.portfolios and API_KEY and "your_alpaca_api_key" not in API_KEY:
-    manager.add_portfolio(Portfolio("P1", API_KEY, SECRET_KEY, BASE_URL))
-    manager.add_portfolio(Portfolio("P2", API_KEY, SECRET_KEY, BASE_URL))
-    manager.save_to_file(PORTFOLIO_FILE)
+    try:
+        manager.add_portfolio(Portfolio("P1", API_KEY, SECRET_KEY, BASE_URL))
+        manager.save_to_file(PORTFOLIO_FILE)
+    except ValueError:
+        pass
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
@@ -80,6 +82,7 @@ def _portfolio_snapshot():
         data.append(
             {
                 "name": p.name,
+                "key_hint": (p.api_key[:4] + "***") if p.api_key else "",
                 "cash": cash,
                 "portfolio_value": value,
                 "positions": p.get_positions(),
@@ -422,10 +425,16 @@ def api_trade_tags(trade_id: str):
 def create_portfolio():
     name = request.form.get("name")
     strategy = request.form.get("strategy_type", "default")
-    if name:
-        manager.add_portfolio(Portfolio(name, API_KEY, SECRET_KEY, BASE_URL, strategy))
-        manager.save_to_file(PORTFOLIO_FILE)
-        logger.info("Created portfolio %s", name)
+    api_key = request.form.get("api_key")
+    secret_key = request.form.get("secret_key")
+    base_url = request.form.get("base_url") or ENV.get("ALPACA_BASE_URL")
+    if name and api_key and secret_key:
+        try:
+            manager.add_portfolio(Portfolio(name, api_key, secret_key, base_url, strategy))
+            manager.save_to_file(PORTFOLIO_FILE)
+            logger.info("Created portfolio %s", name)
+        except ValueError as exc:
+            logger.error("Create portfolio failed: %s", exc)
     return redirect(url_for("index"))
 
 

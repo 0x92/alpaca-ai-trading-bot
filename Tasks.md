@@ -376,45 +376,45 @@ Das System soll es ermöglichen, beliebig viele (aber immer getrennte) Portfolio
 
 #### Subtasks:
 
-- [ ] **31.1** Portfolio-Datenstruktur so erweitern, dass pro Portfolio die API-Zugangsdaten (Key, Secret, Base-URL) zwingend hinterlegt sind.  
+- [x] **31.1** Portfolio-Datenstruktur so erweitern, dass pro Portfolio die API-Zugangsdaten (Key, Secret, Base-URL) zwingend hinterlegt sind.
   – Optional: E-Mail/Friendly Name/Account-Info je Portfolio speichern.  
   – Schlüssel-Validierung: Nur gültige (Paper/Live) Keys akzeptieren.
 
-- [ ] **31.2** Portfolio-Objekte dürfen keine API Keys teilen!  
+- [x] **31.2** Portfolio-Objekte dürfen keine API Keys teilen!
   – Prüfe dies beim Hinzufügen neuer Portfolios im System.
 
-- [ ] **31.3** Im Dashboard und beim Erstellen eines neuen Portfolios:  
+- [x] **31.3** Im Dashboard und beim Erstellen eines neuen Portfolios:
   – Formular für API Key & Secret hinzufügen (beides Pflichtfelder).  
   – Optional: Wahl ob Paper oder Live Trading (Base-URL Feld).  
   – Hinweis/Tool-Tipp: "Ein Alpaca-Account/Key = ein Portfolio. Für weitere Portfolios weitere Accounts und Keys anlegen!"
 
-- [ ] **31.4** Beim Editieren: Zeige Key-Infos (abgedeckt), kein Klartext!
+- [x] **31.4** Beim Editieren: Zeige Key-Infos (abgedeckt), kein Klartext!
 
-- [ ] **31.5** Validierung: Bei fehlenden oder doppelten Keys darf das Portfolio nicht angelegt werden.
+- [x] **31.5** Validierung: Bei fehlenden oder doppelten Keys darf das Portfolio nicht angelegt werden.
 
-- [ ] **31.6** Beim Initialisieren jedes Portfolios im Backend (Portfolio-Manager, Models etc.):  
+- [x] **31.6** Beim Initialisieren jedes Portfolios im Backend (Portfolio-Manager, Models etc.):
   – API Key, Secret und Base-URL laden und an die jeweilige Portfolio-Instanz weitergeben.  
   – Keine zentrale API-Session – jede Portfolio-Instanz nutzt eine eigene API-Connection mit eigenen Zugangsdaten.  
   – Exception-Handling für ungültige oder abgelaufene Keys.
 
-- [ ] **31.7** MultiPortfolioManager etc. dürfen nicht auf einen globalen API-Key zurückfallen!
+- [x] **31.7** MultiPortfolioManager etc. dürfen nicht auf einen globalen API-Key zurückfallen!
 
-- [ ] **31.8** Speichere Portfolios samt zugehörigen API-Daten in der gewünschten Persistenz (JSON, DB etc.).  
+- [x] **31.8** Speichere Portfolios samt zugehörigen API-Daten in der gewünschten Persistenz (JSON, DB etc.).
   – Nie Secrets an den Client senden oder in Logs speichern!  
   – Maskiere/verschlüssele gespeicherte Keys.
 
-- [ ] **31.9** Schreibe automatisierte Tests:  
+- [x] **31.9** Schreibe automatisierte Tests:
   – Zwei Portfolios mit unterschiedlichen Keys müssen unabhängig traden und agieren können.  
   – Ein Portfolio mit ungültigem oder gesperrtem Key gibt einen sauberen Fehler aus und stoppt alle Aktionen.  
   – Versuche, zwei Portfolios mit dem gleichen Key zu erstellen → Fehler/Hinweis.  
   – Alle Portfolio-spezifischen Aktionen (z.B. Trades, Status) laufen *immer* nur mit den Credentials des jeweiligen Portfolios.
 
-- [ ] **31.10** (Optional) Baue ein Key-Management-Modul:  
+- [ ] **31.10** (Optional) Baue ein Key-Management-Modul:
   – Möglichkeit, API Keys zentral im Backend sicher zu speichern, anzuzeigen, zu löschen.  
   – Keys nur zur Laufzeit an das jeweilige Portfolio-Objekt übergeben.  
   – Hinweise für den Nutzer zu Sicherheit & Aufbewahrung.
 
-- [ ] **31.11** Dokumentiere im README.md und/oder im Dashboard-UI die Info:  
+- [x] **31.11** Dokumentiere im README.md und/oder im Dashboard-UI die Info:
   – "Ein Alpaca-API-Key entspricht immer genau einem Portfolio. Für weitere unabhängige Portfolios sind weitere (Paper-)Accounts und Keys nötig!"
 
 ---
