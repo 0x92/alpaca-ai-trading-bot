@@ -263,13 +263,13 @@
 
 ### Task 22: Bot-KI-Entscheidungen transparent machen (Decision-Explainer)
 
-- [ ] **Backend**:  
-    - [ ] Speichere Prompt, Research-Input und KI-Antwort zu jeder Trading-Entscheidung im Portfolio/Trade-Objekt.
-    - [ ] API-Route `/api/trade/<id>/decision_explainer`  
+- [x] **Backend**:
+    - [x] Speichere Prompt, Research-Input und KI-Antwort zu jeder Trading-Entscheidung im Portfolio/Trade-Objekt.
+    - [x] API-Route `/api/trade/<id>/decision_explainer`
       Liefert alle Entscheidungsdaten für einen Trade.
-- [ ] **Frontend**:  
-    - [ ] Button “Warum?” pro Trade/Order.
-    - [ ] Popup/Modal mit Prompt, Input und KI-Output.
+- [x] **Frontend**:
+    - [x] Button “Warum?” pro Trade/Order.
+    - [x] Popup/Modal mit Prompt, Input und KI-Output.
     - [ ] Optional: Visualisiere Einflussfaktoren aus dem Research.
 
 ---

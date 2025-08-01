@@ -193,6 +193,11 @@
                 item.dataset.index = idx;
                 item.textContent = `${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
                 item.addEventListener('click', () => showTradeDetails(name, idx));
+                const btn = document.createElement('button');
+                btn.textContent = 'Warum?';
+                btn.className = 'ml-2 text-blue-500 text-xs';
+                btn.addEventListener('click', e => { e.stopPropagation(); showDecisionExplainer(name, idx); });
+                item.appendChild(btn);
                 list.appendChild(item);
             });
         }
@@ -236,6 +241,20 @@
                 renderTradePriceChart(name, data.prices || [], trade);
             } catch (err) {
                 console.error('price history failed', err);
+            }
+        }
+
+        async function showDecisionExplainer(name, idx) {
+            const trade = (tradeStore[name] || [])[idx];
+            if (!trade) return;
+            const tid = trade.id || trade.client_order_id;
+            if (!tid) return;
+            try {
+                const resp = await fetch(`/api/trade/${tid}/decision_explainer`);
+                const data = await resp.json();
+                alert(JSON.stringify(data, null, 2));
+            } catch (err) {
+                console.error('explainer failed', err);
             }
         }
 
