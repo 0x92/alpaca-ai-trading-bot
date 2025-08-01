@@ -277,6 +277,8 @@ def api_activity_log(name: str):
                 events = [e for e in events if e.get("type") == "trade"]
             elif type_filter == "alerts":
                 events = [e for e in events if e.get("type") == "alert"]
+            elif type_filter == "debug":
+                events = [e for e in events if e.get("type") in ("prompt", "response")]
             return {"log": events[-limit:]}
     return {"log": []}
 

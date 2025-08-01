@@ -403,6 +403,7 @@ def get_strategy_from_openai(
         )
     portfolio.last_prompt = prompt
     portfolio.last_research = research
+    portfolio.log_event("prompt", prompt)
     try:
         client = openai.OpenAI(api_key=openai.api_key)
         resp = client.chat.completions.create(
@@ -412,14 +413,17 @@ def get_strategy_from_openai(
         )
         decision = resp.choices[0].message.content.strip()
         portfolio.last_response = decision
+        portfolio.log_event("response", decision)
         return decision
     except openai.RateLimitError:
         logger.warning("OpenAI rate limit reached for %s", portfolio.name)
         portfolio.last_response = "rate_limit"
+        portfolio.log_event("response", "rate_limit")
         return "rate_limit"
     except Exception as exc:
         logger.error("OpenAI error for %s: %s", portfolio.name, exc)
         portfolio.last_response = f"error: {exc}"
+        portfolio.log_event("response", f"error: {exc}")
         return f"error: {exc}"
 
 

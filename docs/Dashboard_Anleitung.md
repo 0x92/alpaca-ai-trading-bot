@@ -42,6 +42,8 @@ Felder für **Stop Loss**, **Take Profit**, **Max Drawdown** und **Trade PnL Lim
 - **Positions** listen alle offenen Positionen. Sortieren und Filtern ist möglich.
 - **Open Orders** zeigt aktuelle Orders samt Status.
 - **Activity** protokolliert Aktionen wie Trades oder Alerts (Filterbar nach Typ).
+- Über den neuen Filter **debug** lassen sich die an OpenAI gesendeten Prompts
+  und die erhaltenen Antworten einsehen.
 - **PnL Charts** stellen Gewinn/Verlust über verschiedene Intervalle dar.
 - **Trades** listet die abgeschlossenen Trades. Über das Eingabefeld können Notizen und Tags gespeichert werden. Klick auf einen Eintrag öffnet Details und Preisverlauf des Trades; der Button "Warum?" zeigt den Decision-Explainer.
 - Über die Links **Download**, **Report** und **Export** lassen sich Handelsdaten bzw. komplette Dashboard-Daten exportieren (JSON, CSV oder PDF).
