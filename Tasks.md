@@ -276,14 +276,14 @@
 
 ### Task 23: Alerts und Schwellenwert-Warnungen
 
-- [ ] **Backend**:  
-    - [ ] Felder für Schwellenwerte im Portfolio/Trade (max. Drawdown, PnL-Limits).
-    - [ ] Überwache in der Trade- und Positionslogik, ob Schwellenwerte überschritten werden.
-    - [ ] API-Route `/api/portfolio/<name>/alerts`
-    - [ ] Push Alerts per SocketIO und ggf. E-Mail/Push.
-- [ ] **Frontend**:  
-    - [ ] Anzeigen und Konfigurieren von Alerts im Dashboard.
-    - [ ] Visual/Akustisch (z.B. Banner, Sound).
+- [x] **Backend**:
+    - [x] Felder für Schwellenwerte im Portfolio/Trade (max. Drawdown, PnL-Limits).
+    - [x] Überwache in der Trade- und Positionslogik, ob Schwellenwerte überschritten werden.
+    - [x] API-Route `/api/portfolio/<name>/alerts`
+    - [x] Push Alerts per SocketIO und ggf. E-Mail/Push.
+- [x] **Frontend**:
+    - [x] Anzeigen und Konfigurieren von Alerts im Dashboard.
+    - [x] Visual/Akustisch (z.B. Banner, Sound).
 
 ---
 

@@ -52,6 +52,7 @@ class Portfolio:
     stop_loss_pct: float = 0.05
     take_profit_pct: float = 0.1
     max_drawdown_pct: float = 0.2
+    trade_pnl_limit_pct: float = 0.05
     risk_level: float = 0.02  # fraction of cash to risk per trade
     holdings: Dict[str, float] = field(default_factory=dict)
     avg_prices: Dict[str, float] = field(default_factory=dict)
@@ -142,6 +143,18 @@ class Portfolio:
             }
             self.history.append(order_dict)
             self.log_event("trade", f"{side} {qty} {symbol}")
+
+            # check realized pnl against limit on sell orders
+            if side.lower() == "sell" and "pnl" in order_dict:
+                account = self.get_account_info()
+                value = float(account.get("portfolio_value") or 0)
+                pnl = float(order_dict.get("pnl") or 0)
+                if value > 0:
+                    pnl_pct = abs(pnl) / value
+                    if pnl_pct >= self.trade_pnl_limit_pct:
+                        alert = f"Trade PnL {pnl:.2f} exceeded limit"
+                        self.risk_alerts.append(alert)
+                        self.log_event("alert", alert)
             return order
         except Exception as exc:
             logger.error("Order failed for %s: %s", self.name, exc)

@@ -406,6 +406,14 @@
                 if (select) select.value = p.strategy_type;
                 const promptArea = el.querySelector('textarea[name="custom_prompt"]');
                 if (promptArea) promptArea.value = p.custom_prompt || '';
+                const sl = el.querySelector('input[name="stop_loss_pct"]');
+                if (sl) sl.value = p.stop_loss_pct;
+                const tp = el.querySelector('input[name="take_profit_pct"]');
+                if (tp) tp.value = p.take_profit_pct;
+                const dd = el.querySelector('input[name="max_drawdown_pct"]');
+                if (dd) dd.value = p.max_drawdown_pct;
+                const pnlLim = el.querySelector('input[name="trade_pnl_limit_pct"]');
+                if (pnlLim) pnlLim.value = p.trade_pnl_limit_pct;
                 el.querySelector('.cash').textContent = p.cash;
                 el.querySelector('.portfolio_value').textContent = p.portfolio_value;
                 const divScoreEl = el.querySelector('.divscore');
@@ -481,6 +489,9 @@
             list.push(data.event);
             activityStore[data.name] = list.slice(-100);
             renderActivity(data.name);
+            if (data.event.type === 'alert') {
+                alert(`${data.name}: ${data.event.message}`);
+            }
         });
         // initial bootstrap from server rendered data
         document.addEventListener('DOMContentLoaded', () => {
