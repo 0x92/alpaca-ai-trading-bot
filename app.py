@@ -234,6 +234,29 @@ def api_orders(name: str):
     return {"orders": []}
 
 
+@app.route("/api/portfolio/<name>/liquidate", methods=["POST"])
+def api_liquidate(name: str):
+    """Liquidate a single position manually."""
+    data = request.get_json(silent=True) or {}
+    symbol = data.get("symbol") or request.form.get("symbol")
+    if not symbol:
+        return {"error": "symbol_required"}, 400
+    for p in manager.portfolios:
+        if p.name == name:
+            qty = p.holdings.get(symbol, 0)
+            if qty <= 0:
+                return {"error": "position_not_found"}, 404
+            try:
+                p.place_order(symbol, qty, "sell")
+            except Exception as exc:
+                logger.error("Manual liquidation failed for %s: %s", p.name, exc)
+                return {"error": str(exc)}, 500
+            portfolios = _portfolio_snapshot()
+            socketio.emit("trade_update", portfolios)
+            return {"status": "ok"}
+    return {"error": "not_found"}, 404
+
+
 @app.route("/api/portfolio/<name>/allocation")
 def api_allocation(name: str):
     """Return current asset allocation for a portfolio."""
