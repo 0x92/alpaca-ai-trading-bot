@@ -11,6 +11,7 @@ from app.portfolio_manager import (
     Portfolio,
     MultiPortfolioManager,
     get_strategy_from_openai,
+    set_activity_callback,
 )
 from app.research_engine import get_research
 from app.reporting import export_trades_csv, generate_reports
@@ -35,6 +36,7 @@ if not manager.portfolios and API_KEY and "your_alpaca_api_key" not in API_KEY:
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
+set_activity_callback(lambda name, evt: socketio.emit("activity_update", {"name": name, "event": evt}, broadcast=True))
 
 # placeholders required for custom prompts
 REQUIRED_PLACEHOLDERS = ["{strategy_type}", "{portfolio}", "{research}"]
@@ -111,6 +113,7 @@ def set_strategy(name: str):
     for p in manager.portfolios:
         if p.name == name:
             p.strategy_type = strategy
+            p.log_event("strategy", f"set to {strategy}")
             break
     manager.save_to_file(PORTFOLIO_FILE)
     logger.info("Set strategy for %s to %s", name, strategy)
@@ -125,6 +128,7 @@ def set_prompt(name: str):
     for p in manager.portfolios:
         if p.name == name:
             p.custom_prompt = prompt
+            p.log_event("prompt", "updated custom prompt")
             break
     manager.save_to_file(PORTFOLIO_FILE)
     logger.info("Updated custom prompt for %s", name)
@@ -193,6 +197,22 @@ def api_trade_history(name: str):
             summary = {"count": len(trades), "buy_count": buy, "sell_count": sell}
             return {"trades": trades, "summary": summary}
     return {"trades": [], "summary": {}}
+
+
+@app.route("/api/portfolio/<name>/activity_log")
+def api_activity_log(name: str):
+    """Return activity log for a portfolio."""
+    type_filter = request.args.get("type", "all")
+    limit = request.args.get("limit", type=int) or 100
+    for p in manager.portfolios:
+        if p.name == name:
+            events = p.activity_log
+            if type_filter == "trades":
+                events = [e for e in events if e.get("type") == "trade"]
+            elif type_filter == "alerts":
+                events = [e for e in events if e.get("type") == "alert"]
+            return {"log": events[-limit:]}
+    return {"log": []}
 
 
 @app.route("/api/portfolio/<name>/pnl_history")

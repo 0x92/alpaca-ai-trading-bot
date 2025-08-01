@@ -22,6 +22,7 @@
         const tradeStore = {};
         const allocStore = {};
         const pnlStore = {};
+        const activityStore = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -334,6 +335,40 @@
             }
         }
 
+        async function loadActivity(name) {
+            const filter = document.getElementById('activity-filter-' + name);
+            const type = filter ? filter.value : 'all';
+            try {
+                const resp = await fetch(`/api/portfolio/${name}/activity_log?type=${type}`);
+                const data = await resp.json();
+                activityStore[name] = data.log || [];
+                renderActivity(name);
+            } catch (err) {
+                console.error('activity load failed', err);
+            }
+        }
+
+        function renderActivity(name) {
+            const list = document.getElementById('activity-log-' + name);
+            if (!list) return;
+            const items = activityStore[name] || [];
+            list.innerHTML = '';
+            if (items.length === 0) {
+                list.innerHTML = '<li>No activity.</li>';
+                return;
+            }
+            items.forEach(ev => {
+                const li = document.createElement('li');
+                li.textContent = `${ev.time} ${ev.type} ${ev.message}`;
+                list.appendChild(li);
+            });
+        }
+
+        function attachActivityHandlers(name) {
+            const filter = document.getElementById('activity-filter-' + name);
+            if (filter) filter.addEventListener('change', () => loadActivity(name));
+        }
+
         function attachPositionHandlers(name) {
             const sortSelect = document.getElementById('pos-sort-' + name);
             const filterInput = document.getElementById('pos-filter-' + name);
@@ -358,6 +393,7 @@
                 if (divScoreEl) divScoreEl.textContent = p.diversification_score;
                 loadTradeHistory(p.name);
                 loadPnl(p.name);
+                loadActivity(p.name);
 
                 const alertList = el.querySelector('.risk_alerts');
                 if (alertList) {
@@ -410,14 +446,23 @@
                 ordersStore[p.name] = p.open_orders || [];
                 allocStore[p.name] = p.allocation || [];
                 attachPositionHandlers(p.name);
+                attachActivityHandlers(p.name);
                 renderPositions(p.name);
                 renderOrders(p.name);
                 renderAllocation(p.name);
                 renderPnl(p.name);
+                renderActivity(p.name);
             });
         }
 
         socket.on('trade_update', updatePortfolios);
+        socket.on('activity_update', data => {
+            if (!data || !data.name || !data.event) return;
+            const list = activityStore[data.name] || [];
+            list.push(data.event);
+            activityStore[data.name] = list.slice(-100);
+            renderActivity(data.name);
+        });
         // initial bootstrap from server rendered data
         document.addEventListener('DOMContentLoaded', () => {
             const dataElement = document.getElementById('initial-data');
@@ -426,9 +471,11 @@
                 updatePortfolios(portfolios);
                 portfolios.forEach(p => {
                     attachPositionHandlers(p.name);
+                    attachActivityHandlers(p.name);
                     loadTradeHistory(p.name);
                     renderAllocation(p.name);
                     loadPnl(p.name);
+                    loadActivity(p.name);
                 });
             }
         });
