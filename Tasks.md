@@ -225,13 +225,13 @@
 
 ### Task 19: Investitionsübersicht & Asset-Allokation
 
-- [ ] **Backend**:  
-    - [ ] Berechne und aggregiere die aktuelle Verteilung aller Investments je Portfolio.
-    - [ ] API-Route `/api/portfolio/<name>/allocation`  
+- [x] **Backend**:
+    - [x] Berechne und aggregiere die aktuelle Verteilung aller Investments je Portfolio.
+    - [x] API-Route `/api/portfolio/<name>/allocation`
       Liefert Allokation als Liste/Prozentwerte je Asset.
-- [ ] **Frontend**:  
-    - [ ] Pie Chart (Chart.js) für Investment Breakdown im Dashboard.
-    - [ ] Klumpenrisiken visuell hervorheben.
+- [x] **Frontend**:
+    - [x] Pie Chart (Chart.js) für Investment Breakdown im Dashboard.
+    - [x] Klumpenrisiken visuell hervorheben.
 
 ---
 

@@ -14,9 +14,11 @@
         const charts = {};
         const tradeCharts = {};
         const tradePriceCharts = {};
+        const allocationCharts = {};
         const positionsStore = {};
         const ordersStore = {};
         const tradeStore = {};
+        const allocStore = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -62,6 +64,29 @@
                     maintainAspectRatio: false
                 }
             });
+        }
+
+        function renderAllocation(name) {
+            const data = allocStore[name] || [];
+            const ctxEl = document.getElementById('alloc-chart-' + name);
+            if (!ctxEl) return;
+            const ctx = ctxEl.getContext('2d');
+            const labels = data.map(a => a.symbol);
+            const values = data.map(a => a.percent);
+            const colors = values.map(v => v > 50 ? 'rgb(255, 99, 132)' : 'rgb(54, 162, 235)');
+            if (!allocationCharts[name]) {
+                allocationCharts[name] = new Chart(ctx, {
+                    type: 'pie',
+                    data: { labels: labels, datasets: [{ data: values, backgroundColor: colors }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            } else {
+                const chart = allocationCharts[name];
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = values;
+                chart.data.datasets[0].backgroundColor = colors;
+                chart.update();
+            }
         }
 
         function renderPositions(name) {
@@ -325,9 +350,11 @@
 
                 positionsStore[p.name] = p.positions || [];
                 ordersStore[p.name] = p.open_orders || [];
+                allocStore[p.name] = p.allocation || [];
                 attachPositionHandlers(p.name);
                 renderPositions(p.name);
                 renderOrders(p.name);
+                renderAllocation(p.name);
             });
         }
 
@@ -341,6 +368,7 @@
                 portfolios.forEach(p => {
                     attachPositionHandlers(p.name);
                     loadTradeHistory(p.name);
+                    renderAllocation(p.name);
                 });
             }
         });

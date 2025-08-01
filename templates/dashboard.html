@@ -61,6 +61,9 @@
                 </tbody>
             </table>
         </div>
+        <div class="h-32 mt-2">
+            <canvas id="alloc-chart-{{ p.name }}"></canvas>
+        </div>
         <h3 class="font-semibold mt-2">Risk Alerts</h3>
         <ul class="list-disc list-inside risk_alerts">
             {% for alert in p.risk_alerts %}
