@@ -187,14 +187,14 @@
 
 ### Task 16: Offene Trades/Orders in Echtzeit visualisieren
 
-- [ ] **Backend**:  
-    - [ ] API-Route `/api/portfolio/<name>/orders?status=open`  
+- [x] **Backend**:
+    - [x] API-Route `/api/portfolio/<name>/orders?status=open`
       Liefert alle offenen (pending) Orders je Portfolio.
-    - [ ] Backend-Logik, um Order-Status zu überwachen und Änderungen an das Frontend zu pushen.
-- [ ] **Frontend**:  
-    - [ ] Visualisierung aller offenen Orders im Dashboard (mit Status, Typ, Symbol, Zielkurs, Menge).
-    - [ ] Farbcodierung und Icons je Status.
-    - [ ] Echtzeit-Update per SocketIO/Websocket.
+    - [x] Backend-Logik, um Order-Status zu überwachen und Änderungen an das Frontend zu pushen.
+- [x] **Frontend**:
+    - [x] Visualisierung aller offenen Orders im Dashboard (mit Status, Typ, Symbol, Zielkurs, Menge).
+    - [x] Farbcodierung und Icons je Status.
+    - [x] Echtzeit-Update per SocketIO/Websocket.
 
 ---
 

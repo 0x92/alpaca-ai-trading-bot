@@ -47,6 +47,7 @@ class Portfolio:
     holdings: Dict[str, float] = field(default_factory=dict)
     avg_prices: Dict[str, float] = field(default_factory=dict)
     risk_alerts: List[str] = field(default_factory=list)
+    open_orders: List[Dict] = field(default_factory=list)
     correlation_matrix: Dict[str, Dict[str, float]] = field(default_factory=dict)
     diversification_score: float = 0.0
     diversification_warnings: List[str] = field(default_factory=list)
@@ -143,6 +144,19 @@ class Portfolio:
                 }
             )
         return positions
+
+    def get_orders(self, status: str = "open") -> List[Dict]:
+        """Return orders with the given status using the Alpaca API."""
+        try:
+            orders = self.client.get_orders(status=status)
+            return [o.model_dump() for o in orders]
+        except Exception as exc:
+            logger.error("Failed to fetch orders for %s: %s", self.name, exc)
+            return []
+
+    def refresh_open_orders(self) -> None:
+        """Update cached list of open orders."""
+        self.open_orders = self.get_orders(status="open")
 
     def check_risk(
         self, account_value: float | None = None, simulate: bool = False

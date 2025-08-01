@@ -58,6 +58,7 @@ def _portfolio_snapshot():
             logger.error("Failed to get info for %s: %s", p.name, exc)
             cash = "N/A"
             value = "N/A"
+        p.refresh_open_orders()
         divers = analyze_portfolio(p)
         p.correlation_matrix = divers["matrix"]
         p.diversification_score = divers["score"]
@@ -69,6 +70,7 @@ def _portfolio_snapshot():
                 "portfolio_value": value,
                 "positions": p.get_positions(),
                 "history": p.history[-5:],
+                "open_orders": p.open_orders,
                 "equity": p.equity_curve[-50:],
                 "equity_norm": manager.get_normalized_equity(p)[-50:],
                 "benchmark": bench[-50:],
@@ -147,6 +149,16 @@ def preview_prompt(name: str):
     )
     temp_portfolio.custom_prompt = original_prompt
     return decision
+
+
+@app.route("/api/portfolio/<name>/orders")
+def api_orders(name: str):
+    """Return orders for a portfolio filtered by status."""
+    status = request.args.get("status", "open")
+    for p in manager.portfolios:
+        if p.name == name:
+            return {"orders": p.get_orders(status=status)}
+    return {"orders": []}
 
 
 @app.route("/portfolio/create", methods=["POST"])

@@ -13,6 +13,7 @@
         const socket = io();
         const charts = {};
         const positionsStore = {};
+        const ordersStore = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -99,6 +100,39 @@
             }
         }
 
+        function renderOrders(name) {
+            const data = ordersStore[name] || [];
+            const table = document.getElementById('orders-' + name);
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.textContent = 'No open orders';
+                row.appendChild(td);
+                tbody.appendChild(row);
+            } else {
+                data.forEach(o => {
+                    const row = document.createElement('tr');
+                    const cls = {
+                        new: 'text-blue-500',
+                        partially_filled: 'text-yellow-600',
+                        filled: 'text-green-600',
+                        canceled: 'text-red-600'
+                    }[o.status] || '';
+                    row.innerHTML =
+                        `<td class="border px-1 ${cls}">${o.status}</td>` +
+                        `<td class="border px-1">${o.order_type || o.type}</td>` +
+                        `<td class="border px-1">${o.symbol}</td>` +
+                        `<td class="border px-1">${o.qty}</td>` +
+                        `<td class="border px-1">${o.limit_price || ''}</td>`;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
         function attachPositionHandlers(name) {
             const sortSelect = document.getElementById('pos-sort-' + name);
             const filterInput = document.getElementById('pos-filter-' + name);
@@ -179,8 +213,10 @@
                 }
 
                 positionsStore[p.name] = p.positions || [];
+                ordersStore[p.name] = p.open_orders || [];
                 attachPositionHandlers(p.name);
                 renderPositions(p.name);
+                renderOrders(p.name);
             });
         }
 
