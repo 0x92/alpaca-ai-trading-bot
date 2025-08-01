@@ -414,7 +414,7 @@ def get_strategy_from_openai(
         decision = resp["choices"][0]["message"]["content"].strip()
         portfolio.last_response = decision
         return decision
-    except openai.error.RateLimitError:
+    except openai.RateLimitError:
         logger.warning("OpenAI rate limit reached for %s", portfolio.name)
         portfolio.last_response = "rate_limit"
         return "rate_limit"
