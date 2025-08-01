@@ -99,6 +99,15 @@ def index():
     return render_template("dashboard.html", portfolios=portfolios)
 
 
+@app.route("/compare")
+def compare_view():
+    names_param = request.args.get("names", "")
+    names = [n.strip() for n in names_param.split(",") if n.strip()] or [
+        p.name for p in manager.portfolios
+    ]
+    return render_template("compare.html", names=names)
+
+
 @app.route("/step", methods=["POST"])
 def step():
     logger.info("Running simulation step")
@@ -260,6 +269,39 @@ def api_pnl_history(name: str):
                 **p.get_top_flop_trades(),
             }
     return {"pnl": [], "top": [], "flop": []}
+
+
+@app.route("/api/portfolios/compare")
+def api_compare_portfolios():
+    """Return key metrics for multiple portfolios."""
+    names_param = request.args.get("names", "")
+    names = [n.strip() for n in names_param.split(",") if n.strip()] or [
+        p.name for p in manager.portfolios
+    ]
+    bench = manager.get_normalized_benchmark()[-50:]
+    result = []
+    for p in manager.portfolios:
+        if p.name not in names:
+            continue
+        info = p.get_account_info()
+        value = float(info.get("portfolio_value") or 0)
+        cash = float(info.get("cash") or 0)
+        pnl = 0.0
+        if len(p.equity_curve) >= 2:
+            pnl = float(p.equity_curve[-1]["value"])
+            pnl -= float(p.equity_curve[0]["value"])
+        result.append(
+            {
+                "name": p.name,
+                "portfolio_value": value,
+                "cash": cash,
+                "pnl": pnl,
+                "allocation": p.get_allocation(),
+                "equity_norm": manager.get_normalized_equity(p)[-50:],
+                "risk_alerts": p.risk_alerts[-5:],
+            }
+        )
+    return {"bench": bench, "portfolios": result}
 
 
 @app.route("/api/trade/<trade_id>/price_history")

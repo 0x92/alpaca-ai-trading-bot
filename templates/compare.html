@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Portfolio Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <h1 class="text-2xl font-bold mb-4">Portfolio Comparison</h1>
+    <div class="mb-2">
+        <a href="/" class="text-blue-500">Back to Dashboard</a>
+    </div>
+    <table class="table-auto border mb-4" id="compare-table">
+        <thead>
+            <tr>
+                <th class="border px-2">Name</th>
+                <th class="border px-2">Value</th>
+                <th class="border px-2">Cash</th>
+                <th class="border px-2">PnL</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div class="h-64">
+        <canvas id="equity-chart"></canvas>
+    </div>
+    <script id="names" type="application/json">{{ names | tojson }}</script>
+    <script>
+        const names = JSON.parse(document.getElementById('names').textContent);
+        async function loadData() {
+            const resp = await fetch(`/api/portfolios/compare?names=${names.join(',')}`);
+            const data = await resp.json();
+            renderTable(data.portfolios);
+            renderChart(data);
+        }
+        function renderTable(items) {
+            const body = document.querySelector('#compare-table tbody');
+            body.innerHTML = '';
+            items.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="border px-2">${p.name}</td>` +
+                                `<td class="border px-2">${p.portfolio_value}</td>` +
+                                `<td class="border px-2">${p.cash}</td>` +
+                                `<td class="border px-2">${p.pnl.toFixed(2)}</td>`;
+                body.appendChild(row);
+            });
+        }
+        function renderChart(data) {
+            const ctx = document.getElementById('equity-chart').getContext('2d');
+            const datasets = data.portfolios.map((p, idx) => ({
+                label: p.name,
+                data: p.equity_norm.map(e => e.value),
+                borderColor: `hsl(${(idx*60)%360},70%,50%)`,
+                tension: 0.1,
+            }));
+            if (data.bench && data.bench.length > 0) {
+                datasets.push({
+                    label: 'Benchmark',
+                    data: data.bench.map(b => b.value),
+                    borderColor: 'rgb(153,102,255)',
+                    borderDash: [5,5],
+                    tension: 0.1,
+                });
+            }
+            const labels = data.bench.map(b => b.time);
+            new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
