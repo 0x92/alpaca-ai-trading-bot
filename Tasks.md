@@ -311,11 +311,11 @@
 
 ### Task 26: Export aller Dashboard-Daten
 
-- [ ] **Backend**:  
-    - [ ] Export-Logik für CSV, JSON, PDF aller Portfolio-/Trade-/Chart-Daten.
-    - [ ] API-Route `/api/portfolio/<name>/export?format=csv|json|pdf`
-- [ ] **Frontend**:  
-    - [ ] Export-Button im Dashboard, Auswahl von Bereich und Format.
+- [x] **Backend**:
+    - [x] Export-Logik für CSV, JSON, PDF aller Portfolio-/Trade-/Chart-Daten.
+    - [x] API-Route `/api/portfolio/<name>/export?format=csv|json|pdf`
+- [x] **Frontend**:
+    - [x] Export-Button im Dashboard, Auswahl von Bereich und Format.
 
 ---
 
