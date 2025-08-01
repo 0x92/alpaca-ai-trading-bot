@@ -103,12 +103,13 @@ def select_research_topics(symbol: str) -> list[str]:
         "Respond with a comma separated list of the chosen types only."
     ).format(symbol=symbol)
     try:
-        resp = openai.ChatCompletion.create(
+        client = openai.OpenAI(api_key=openai.api_key)
+        resp = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
         )
-        text = resp["choices"][0]["message"]["content"].lower()
+        text = resp.choices[0].message.content.lower()
         return [t.strip() for t in text.split(",") if t.strip()]
     except Exception as exc:
         logger.error("OpenAI research topic selection error: %s", exc)

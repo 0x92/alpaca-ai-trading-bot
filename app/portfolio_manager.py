@@ -406,12 +406,13 @@ def get_strategy_from_openai(
     portfolio.last_prompt = prompt
     portfolio.last_research = research
     try:
-        resp = openai.ChatCompletion.create(
+        client = openai.OpenAI(api_key=openai.api_key)
+        resp = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
         )
-        decision = resp["choices"][0]["message"]["content"].strip()
+        decision = resp.choices[0].message.content.strip()
         portfolio.last_response = decision
         return decision
     except openai.RateLimitError:
