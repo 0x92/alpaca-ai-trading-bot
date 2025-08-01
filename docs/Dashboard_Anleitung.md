@@ -24,6 +24,7 @@ Bestehende Portfolios lassen sich über den "Delete"-Button entfernen.
 ## Simulation ausführen
 
 Über den Button **Step** wird ein Simulationsschritt für alle Portfolios ausgelöst. Die Ergebnisse erscheinen anschließend im Dashboard.
+Der Button **Buy Only** sucht dagegen explizit nach Kaufmöglichkeiten und führt nur Kauforders aus.
 
 ## Strategie auswählen und Prompts anpassen
 
