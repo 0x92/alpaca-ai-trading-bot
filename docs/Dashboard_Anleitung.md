@@ -25,6 +25,7 @@ Bestehende Portfolios lassen sich über den "Delete"-Button entfernen.
 
 Über den Button **Step** wird ein Simulationsschritt für alle Portfolios ausgelöst. Die Ergebnisse erscheinen anschließend im Dashboard.
 Der Button **Buy Only** sucht dagegen explizit nach Kaufmöglichkeiten und führt nur Kauforders aus.
+Unter jedem Portfolio befindet sich außerdem ein kleines Formular für manuelle Trades. Dort können Symbol, Menge und Seite (buy/sell) eingegeben werden. Ausgeführte manuelle Orders erscheinen in der Historie mit dem Präfix "[M]".
 
 ## Strategie auswählen und Prompts anpassen
 

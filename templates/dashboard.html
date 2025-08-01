@@ -162,6 +162,15 @@
                 <tbody></tbody>
             </table>
         </div>
+        <form method="post" action="{{ url_for('manual_trade', name=p.name) }}" class="mt-2 flex items-center space-x-1 text-xs">
+            <input type="text" name="symbol" placeholder="Symbol" class="border px-1 py-0 w-20" required>
+            <input type="number" name="qty" step="1" placeholder="Qty" class="border px-1 py-0 w-16" required>
+            <select name="side" class="border px-1 py-0">
+                <option value="buy">buy</option>
+                <option value="sell">sell</option>
+            </select>
+            <button type="submit" class="bg-blue-500 text-white px-2 py-1 rounded">Trade</button>
+        </form>
         <div class="mt-2">
             <h3 class="font-semibold">Activity</h3>
             <div class="text-xs mb-1">
