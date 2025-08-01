@@ -25,10 +25,16 @@
             </ul>
         </div>
     </div>
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="loader mr-2"></div>
+        <span id="loading-text" class="text-white text-lg"></span>
+    </div>
     <style>
         .info-icon { position: relative; display: inline-block; cursor: pointer; }
         .info-icon .tooltip { display: none; position: absolute; left: 1rem; top: 1.25rem; background: rgba(0,0,0,0.8); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: 200px; font-size: 0.75rem; z-index: 50; }
         .info-icon:hover .tooltip { display: block; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <script>
         const socket = io();
@@ -590,9 +596,22 @@
             const infoBtn = document.getElementById('info-button');
             const infoClose = document.getElementById('info-close');
             const infoOverlay = document.getElementById('info-overlay');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
             if (infoBtn && infoClose && infoOverlay) {
                 infoBtn.addEventListener('click', () => infoOverlay.classList.remove('hidden'));
                 infoClose.addEventListener('click', () => infoOverlay.classList.add('hidden'));
+            }
+            if (loadingOverlay) {
+                document.querySelectorAll("form[action$='/step'], form[action$='/buy']").forEach(f => {
+                    f.addEventListener('submit', () => {
+                        const btn = f.querySelector('button[type="submit"]');
+                        if (loadingText && btn) {
+                            loadingText.textContent = (btn.textContent || 'Loading') + '...';
+                        }
+                        loadingOverlay.classList.remove('hidden');
+                    });
+                });
             }
         });
     </script>
