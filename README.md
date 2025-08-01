@@ -43,6 +43,9 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    python app.py
    ```
    The dashboard lets you pick a strategy for each portfolio from a dropdown.
+    Each portfolio requires its **own** Alpaca API key and secret. The create form
+    in the dashboard asks for these credentials – one key pair cannot be shared
+    between multiple portfolios.
 
 ## Custom Prompt Editor
 

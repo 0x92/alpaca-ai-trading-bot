@@ -2,12 +2,10 @@
   {
     "name": "P1",
     "strategy_type": "momentum",
-    "custom_prompt": ""
-  },
-  {
-    "name": "P2",
-    "strategy_type": "mean_reversion",
-    "custom_prompt": ""
+    "custom_prompt": "",
+    "api_key": "your_alpaca_api_key",
+    "secret_key": "your_alpaca_secret_key",
+    "base_url": "https://paper-api.alpaca.markets"
   }
 ]
 

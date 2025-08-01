@@ -435,33 +435,30 @@ class MultiPortfolioManager:
         self.benchmark_curve: List[Dict] = []
 
     # --- Persistence helpers -------------------------------------------------
-    def load_from_file(
-        self,
-        path: str | Path,
-        api_key: str,
-        secret_key: str,
-        base_url: str,
-    ) -> None:
-        """Load portfolio definitions from JSON file."""
+    def load_from_file(self, path: str | Path) -> None:
+        """Load portfolio definitions including credentials from JSON file."""
         file_path = Path(path)
         if not file_path.exists():
             return
         try:
             data = json.loads(file_path.read_text())
-            self.portfolios = [
-                Portfolio(
+        except Exception:
+            return
+
+        self.portfolios = []
+        for item in data:
+            try:
+                p = Portfolio(
                     item.get("name"),
-                    api_key,
-                    secret_key,
-                    base_url,
+                    item.get("api_key", ""),
+                    item.get("secret_key", ""),
+                    item.get("base_url", ENV.get("ALPACA_BASE_URL")),
                     item.get("strategy_type", "default"),
                     item.get("custom_prompt", ""),
                 )
-                for item in data
-            ]
-        except Exception:
-            # ignore malformed json
-            pass
+                self.add_portfolio(p)
+            except Exception:
+                continue
 
     def save_to_file(self, path: str | Path) -> None:
         """Persist portfolio definitions (name + strategy) to JSON file."""
@@ -471,6 +468,9 @@ class MultiPortfolioManager:
                 "name": p.name,
                 "strategy_type": p.strategy_type,
                 "custom_prompt": p.custom_prompt,
+                "api_key": p.api_key,
+                "secret_key": p.secret_key,
+                "base_url": p.base_url,
             }
             for p in self.portfolios
         ]
@@ -479,6 +479,20 @@ class MultiPortfolioManager:
     # -------------------------------------------------------------------------
 
     def add_portfolio(self, portfolio: Portfolio) -> None:
+        """Add a portfolio ensuring unique and valid API credentials."""
+        if (
+            not portfolio.api_key
+            or not portfolio.secret_key
+            or "your_alpaca_api_key" in portfolio.api_key
+            or "your_alpaca_secret_key" in portfolio.secret_key
+        ):
+            raise ValueError("invalid_api_credentials")
+        for p in self.portfolios:
+            if (
+                p.api_key == portfolio.api_key
+                and p.secret_key == portfolio.secret_key
+            ):
+                raise ValueError("duplicate_api_credentials")
         self.portfolios.append(portfolio)
 
     def remove_portfolio(self, name: str) -> None:
