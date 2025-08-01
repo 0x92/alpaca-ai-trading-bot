@@ -51,9 +51,12 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    file to let ChatGPT suggest trending symbols instead of using Yahoo Finance.
    The **Buy Only** button works similarly but ignores sell signals and only
    executes trades when a buy recommendation is returned.
+   Select **debug** in the Activity filter to view the exact prompts sent to
+   OpenAI and the received responses.
    A small form inside each portfolio block also lets you submit manual market
    orders. Provide a symbol, quantity and choose buy or sell. Manual trades are
    stored in the history marked with `[M]`.
+
 
 ## Custom Prompt Editor
 
