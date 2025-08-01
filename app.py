@@ -201,6 +201,30 @@ def set_alerts(name: str):
     return redirect(url_for("index"))
 
 
+@app.route("/portfolio/<name>/manual_trade", methods=["POST"])
+def manual_trade(name: str):
+    """Execute a user initiated market order."""
+    symbol = request.form.get("symbol", "").upper()
+    qty = request.form.get("qty", type=float)
+    side = request.form.get("side", "buy")
+    if not symbol or not qty:
+        return redirect(url_for("index"))
+    for p in manager.portfolios:
+        if p.name == name:
+            try:
+                p.place_order(symbol, qty, side)
+                if p.history:
+                    p.history[-1]["source"] = "manual"
+                p.log_event("manual", f"{side} {qty} {symbol}")
+            except Exception as exc:
+                logger.error("Manual trade failed for %s: %s", name, exc)
+            break
+    manager.save_to_file(PORTFOLIO_FILE)
+    portfolios = _portfolio_snapshot()
+    socketio.emit("trade_update", portfolios)
+    return redirect(url_for("index"))
+
+
 @app.route("/portfolio/<name>/preview_prompt", methods=["POST"])
 def preview_prompt(name: str):
     prompt = request.form.get("custom_prompt", "")

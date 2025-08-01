@@ -229,7 +229,8 @@
                 const item = document.createElement('li');
                 item.className = 'cursor-pointer';
                 item.dataset.index = idx;
-                item.textContent = `${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
+                const prefix = t.source === 'manual' ? '[M] ' : '';
+                item.textContent = `${prefix}${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
                 item.addEventListener('click', () => showTradeDetails(name, idx));
                 const btn = document.createElement('button');
                 btn.textContent = 'Warum?';
