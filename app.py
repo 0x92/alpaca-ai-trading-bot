@@ -195,6 +195,19 @@ def api_trade_history(name: str):
     return {"trades": [], "summary": {}}
 
 
+@app.route("/api/portfolio/<name>/pnl_history")
+def api_pnl_history(name: str):
+    """Return pnl history and top/flop trades for a portfolio."""
+    interval = request.args.get("interval", "day")
+    for p in manager.portfolios:
+        if p.name == name:
+            return {
+                "pnl": p.get_pnl_history(interval=interval),
+                **p.get_top_flop_trades(),
+            }
+    return {"pnl": [], "top": [], "flop": []}
+
+
 @app.route("/api/trade/<trade_id>/price_history")
 def api_trade_price_history(trade_id: str):
     """Return price history for a trade identified by its id."""
