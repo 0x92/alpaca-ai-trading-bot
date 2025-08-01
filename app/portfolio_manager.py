@@ -388,8 +388,8 @@ def get_strategy_from_openai(
         try:
             prompt = portfolio.custom_prompt.format(
                 strategy_type=strategy_type,
-                portfolio=json.dumps(account),
-                research=json.dumps(research),
+                portfolio=json.dumps(account, default=str),
+                research=json.dumps(research, default=str),
             )
         except Exception as exc:
             logger.error(
@@ -400,8 +400,8 @@ def get_strategy_from_openai(
         prompt = (
             "Provide a short trading decision (buy/sell/hold) for the next step.\n"
             f"Strategy: {strategy_type}\n"
-            f"Portfolio: {json.dumps(account)}\n"
-            f"Research: {json.dumps(research)}"
+            f"Portfolio: {json.dumps(account, default=str)}\n"
+            f"Research: {json.dumps(research, default=str)}"
         )
     portfolio.last_prompt = prompt
     portfolio.last_research = research
