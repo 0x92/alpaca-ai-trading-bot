@@ -41,6 +41,21 @@
                 <span id="preview-{{ p.name }}" class="text-xs"></span>
             </div>
         </form>
+        <form method="post" action="{{ url_for('set_alerts', name=p.name) }}" class="my-2 text-xs space-x-2">
+            <label>SL%
+                <input type="number" step="0.01" name="stop_loss_pct" value="{{ p.stop_loss_pct }}" class="border w-16 px-1 py-0">
+            </label>
+            <label>TP%
+                <input type="number" step="0.01" name="take_profit_pct" value="{{ p.take_profit_pct }}" class="border w-16 px-1 py-0">
+            </label>
+            <label>DD%
+                <input type="number" step="0.01" name="max_drawdown_pct" value="{{ p.max_drawdown_pct }}" class="border w-16 px-1 py-0">
+            </label>
+            <label>Trade%
+                <input type="number" step="0.01" name="trade_pnl_limit_pct" value="{{ p.trade_pnl_limit_pct }}" class="border w-16 px-1 py-0">
+            </label>
+            <button type="submit" class="bg-yellow-500 hover:bg-yellow-700 text-white px-2 py-1 rounded">Save</button>
+        </form>
         <p>Cash: <span class="cash">{{ p.cash }}</span></p>
         <p>Portfolio value: <span class="portfolio_value">{{ p.portfolio_value }}</span></p>
         <div class="h-48">

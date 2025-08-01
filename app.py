@@ -85,6 +85,7 @@ def _portfolio_snapshot():
                 "stop_loss_pct": p.stop_loss_pct,
                 "take_profit_pct": p.take_profit_pct,
                 "max_drawdown_pct": p.max_drawdown_pct,
+                "trade_pnl_limit_pct": p.trade_pnl_limit_pct,
                 "diversification_score": p.diversification_score,
                 "correlation": p.correlation_matrix,
             }
@@ -132,6 +133,30 @@ def set_prompt(name: str):
             break
     manager.save_to_file(PORTFOLIO_FILE)
     logger.info("Updated custom prompt for %s", name)
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio/<name>/set_alerts", methods=["POST"])
+def set_alerts(name: str):
+    """Update alert threshold settings for a portfolio."""
+    sl = request.form.get("stop_loss_pct", type=float)
+    tp = request.form.get("take_profit_pct", type=float)
+    dd = request.form.get("max_drawdown_pct", type=float)
+    pnl = request.form.get("trade_pnl_limit_pct", type=float)
+    for p in manager.portfolios:
+        if p.name == name:
+            if sl is not None:
+                p.stop_loss_pct = sl
+            if tp is not None:
+                p.take_profit_pct = tp
+            if dd is not None:
+                p.max_drawdown_pct = dd
+            if pnl is not None:
+                p.trade_pnl_limit_pct = pnl
+            p.log_event("config", "updated alert thresholds")
+            break
+    manager.save_to_file(PORTFOLIO_FILE)
+    logger.info("Updated alerts for %s", name)
     return redirect(url_for("index"))
 
 
@@ -213,6 +238,15 @@ def api_activity_log(name: str):
                 events = [e for e in events if e.get("type") == "alert"]
             return {"log": events[-limit:]}
     return {"log": []}
+
+
+@app.route("/api/portfolio/<name>/alerts")
+def api_alerts(name: str):
+    """Return risk alerts for a portfolio."""
+    for p in manager.portfolios:
+        if p.name == name:
+            return {"alerts": p.risk_alerts}
+    return {"alerts": []}
 
 
 @app.route("/api/portfolio/<name>/pnl_history")
