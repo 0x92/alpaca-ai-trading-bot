@@ -15,10 +15,13 @@
         const tradeCharts = {};
         const tradePriceCharts = {};
         const allocationCharts = {};
+        const pnlCharts = {};
+        const pnlBarCharts = {};
         const positionsStore = {};
         const ordersStore = {};
         const tradeStore = {};
         const allocStore = {};
+        const pnlStore = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -279,11 +282,65 @@
             }
         }
 
+        async function loadPnl(name) {
+            const intervalSelect = document.getElementById('pnl-interval-' + name);
+            const interval = intervalSelect ? intervalSelect.value : 'day';
+            try {
+                const resp = await fetch(`/api/portfolio/${name}/pnl_history?interval=${interval}`);
+                const data = await resp.json();
+                pnlStore[name] = data;
+                renderPnl(name);
+            } catch (err) {
+                console.error('pnl load failed', err);
+            }
+        }
+
+        function renderPnl(name) {
+            const data = pnlStore[name] || {};
+            const items = data.pnl || [];
+            const labels = items.map(i => i.time);
+            const values = items.map(i => i.pnl);
+            const ctx = document.getElementById('pnl-chart-' + name).getContext('2d');
+            if (!pnlCharts[name]) {
+                pnlCharts[name] = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [{ label: 'PnL', data: values, borderColor: 'rgb(75, 192, 192)', tension: 0.1 }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            } else {
+                const chart = pnlCharts[name];
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = values;
+                chart.update();
+            }
+
+            const barCtx = document.getElementById('pnl-bar-' + name).getContext('2d');
+            const top = (data.top || []).concat(data.flop || []);
+            const barLabels = top.map(t => t.symbol);
+            const barValues = top.map(t => t.pnl);
+            const colors = barValues.map(v => v >= 0 ? 'rgba(75,192,192,0.5)' : 'rgba(255,99,132,0.5)');
+            if (!pnlBarCharts[name]) {
+                pnlBarCharts[name] = new Chart(barCtx, {
+                    type: 'bar',
+                    data: { labels: barLabels, datasets: [{ label: 'PnL', data: barValues, backgroundColor: colors }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            } else {
+                const chart = pnlBarCharts[name];
+                chart.data.labels = barLabels;
+                chart.data.datasets[0].data = barValues;
+                chart.data.datasets[0].backgroundColor = colors;
+                chart.update();
+            }
+        }
+
         function attachPositionHandlers(name) {
             const sortSelect = document.getElementById('pos-sort-' + name);
             const filterInput = document.getElementById('pos-filter-' + name);
             if (sortSelect) sortSelect.addEventListener('change', () => renderPositions(name));
             if (filterInput) filterInput.addEventListener('input', () => renderPositions(name));
+            const pnlSelect = document.getElementById('pnl-interval-' + name);
+            if (pnlSelect) pnlSelect.addEventListener('change', () => loadPnl(name));
         }
 
         function updatePortfolios(data) {
@@ -300,6 +357,7 @@
                 const divScoreEl = el.querySelector('.divscore');
                 if (divScoreEl) divScoreEl.textContent = p.diversification_score;
                 loadTradeHistory(p.name);
+                loadPnl(p.name);
 
                 const alertList = el.querySelector('.risk_alerts');
                 if (alertList) {
@@ -355,6 +413,7 @@
                 renderPositions(p.name);
                 renderOrders(p.name);
                 renderAllocation(p.name);
+                renderPnl(p.name);
             });
         }
 
@@ -369,6 +428,7 @@
                     attachPositionHandlers(p.name);
                     loadTradeHistory(p.name);
                     renderAllocation(p.name);
+                    loadPnl(p.name);
                 });
             }
         });

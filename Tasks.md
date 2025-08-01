@@ -237,14 +237,14 @@
 
 ### Task 20: Gewinn/Verlust-Diagramme (PnL Analysis)
 
-- [ ] **Backend**:  
-    - [ ] API-Route `/api/portfolio/<name>/pnl_history?interval=day|week|month`
+- [x] **Backend**:
+    - [x] API-Route `/api/portfolio/<name>/pnl_history?interval=day|week|month`
       Liefert PnL-Zeitreihe je Portfolio.
-    - [ ] Berechne Top/Flop-Trades serverseitig.
-- [ ] **Frontend**:  
-    - [ ] Chart.js-Diagramme für Tages-/Wochen-/Monatsergebnis und Equity Curve.
-    - [ ] Bar-Chart für Top-/Flop-Trades.
-    - [ ] Zeitraumauswahl im UI.
+    - [x] Berechne Top/Flop-Trades serverseitig.
+- [x] **Frontend**:
+    - [x] Chart.js-Diagramme für Tages-/Wochen-/Monatsergebnis und Equity Curve.
+    - [x] Bar-Chart für Top-/Flop-Trades.
+    - [x] Zeitraumauswahl im UI.
 
 ---
 

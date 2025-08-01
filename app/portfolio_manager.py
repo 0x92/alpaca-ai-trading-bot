@@ -87,7 +87,7 @@ class Portfolio:
         )
         try:
             order = self.client.submit_order(order_data)
-            self.history.append(order.model_dump())
+            order_dict = order.model_dump()
             if side.lower() == "buy":
                 self.holdings[symbol] = self.holdings.get(symbol, 0) + qty
                 price_info = get_latest_price(symbol)
@@ -102,9 +102,13 @@ class Portfolio:
                     else:
                         self.avg_prices[symbol] = price
             else:
+                avg_price = self.avg_prices.get(symbol, 0)
+                filled = float(order_dict.get("filled_avg_price") or 0)
+                order_dict["pnl"] = (filled - avg_price) * qty
                 if symbol in self.holdings:
                     self.holdings.pop(symbol, None)
                     self.avg_prices.pop(symbol, None)
+            self.history.append(order_dict)
             return order
         except Exception as exc:
             logger.error("Order failed for %s: %s", self.name, exc)
@@ -187,6 +191,54 @@ class Portfolio:
             allocation.append({"symbol": "CASH", "percent": pct})
         allocation.sort(key=lambda x: x["percent"], reverse=True)
         return allocation
+
+    def get_pnl_history(self, interval: str = "day") -> List[Dict]:
+        """Return PnL time series aggregated by interval."""
+        if not self.equity_curve:
+            return []
+        try:
+            import pandas as pd
+
+            df = pd.DataFrame(self.equity_curve)
+            df["time"] = pd.to_datetime(df["time"])
+            df = df.set_index("time")
+            rule = {"week": "W", "month": "M"}.get(interval, "D")
+            values = df["value"].resample(rule).last()
+            pnl = values.diff().fillna(0)
+            return [
+                {"time": t.isoformat(), "pnl": float(v)} for t, v in pnl.items()
+            ]
+        except Exception as exc:
+            logger.error("Failed to compute pnl history for %s: %s", self.name, exc)
+            return []
+
+    def get_top_flop_trades(self, limit: int = 5) -> Dict[str, List[Dict]]:
+        """Return lists of top and flop trades by PnL."""
+        sells = []
+        for trade in self.history:
+            if trade.get("side") == "sell":
+                pnl = trade.get("pnl")
+                if pnl is None:
+                    qty = float(trade.get("qty") or 0)
+                    filled = float(trade.get("filled_avg_price") or 0)
+                    symbol = trade.get("symbol")
+                    buy_avg = 0.0
+                    for t in self.history:
+                        if (
+                            t.get("side") == "buy"
+                            and t.get("symbol") == symbol
+                            and float(t.get("qty") or 0) == qty
+                        ):
+                            buy_avg = float(t.get("filled_avg_price") or 0)
+                            break
+                    pnl = (filled - buy_avg) * qty
+                sells.append({"symbol": trade.get("symbol"), "pnl": pnl})
+        if not sells:
+            return {"top": [], "flop": []}
+        sells.sort(key=lambda x: x["pnl"])
+        flop = sells[:limit]
+        top = sells[-limit:][::-1]
+        return {"top": top, "flop": flop}
 
     def check_risk(
         self, account_value: float | None = None, simulate: bool = False

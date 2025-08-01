@@ -109,6 +109,23 @@
                 <tbody></tbody>
             </table>
         </div>
+        <div class="mt-2">
+            <div class="flex items-center space-x-2 text-xs mb-1">
+                <label>PnL Interval
+                    <select id="pnl-interval-{{ p.name }}" class="border px-1 py-0">
+                        <option value="day">day</option>
+                        <option value="week">week</option>
+                        <option value="month">month</option>
+                    </select>
+                </label>
+            </div>
+            <div class="h-24">
+                <canvas id="pnl-chart-{{ p.name }}"></canvas>
+            </div>
+            <div class="h-24 mt-1">
+                <canvas id="pnl-bar-{{ p.name }}"></canvas>
+            </div>
+        </div>
         <div class="flex items-center justify-between mt-2">
             <h3 class="font-semibold">Trades</h3>
             <div class="space-x-2 text-sm">
