@@ -200,14 +200,14 @@
 
 ### Task 17: Trade-Historie mit erweiterten Charts
 
-- [ ] **Backend**:  
-    - [ ] API-Route `/api/portfolio/<name>/trade_history`  
+- [x] **Backend**:
+    - [x] API-Route `/api/portfolio/<name>/trade_history`
       Liefert alle abgeschlossenen Trades mit Details (Zeitpunkt, Entry/Exit, Resultat etc.).
-    - [ ] Option: Serverseitige Filter- und Suchfunktion.
-- [ ] **Frontend**:  
-    - [ ] Integriere Chart.js-Trade-Timeline.
-    - [ ] Drilldown-Funktion: Beim Klick auf einen Trade Details anzeigen.
-    - [ ] Summenstatistiken und Einzeltrade-View.
+    - [x] Option: Serverseitige Filter- und Suchfunktion.
+- [x] **Frontend**:
+    - [x] Integriere Chart.js-Trade-Timeline.
+    - [x] Drilldown-Funktion: Beim Klick auf einen Trade Details anzeigen.
+    - [x] Summenstatistiken und Einzeltrade-View.
 
 ---
 
