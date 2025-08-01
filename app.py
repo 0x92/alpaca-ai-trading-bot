@@ -62,23 +62,26 @@ def _portfolio_snapshot():
         p.correlation_matrix = divers["matrix"]
         p.diversification_score = divers["score"]
         p.diversification_warnings = divers["warnings"]
-        data.append({
-            "name": p.name,
-            "cash": cash,
-            "portfolio_value": value,
-            "history": p.history[-5:],
-            "equity": p.equity_curve[-50:],
-            "equity_norm": manager.get_normalized_equity(p)[-50:],
-            "benchmark": bench[-50:],
-            "strategy_type": p.strategy_type,
-            "custom_prompt": p.custom_prompt,
-            "risk_alerts": p.risk_alerts[-5:] + p.diversification_warnings,
-            "stop_loss_pct": p.stop_loss_pct,
-            "take_profit_pct": p.take_profit_pct,
-            "max_drawdown_pct": p.max_drawdown_pct,
-            "diversification_score": p.diversification_score,
-            "correlation": p.correlation_matrix,
-        })
+        data.append(
+            {
+                "name": p.name,
+                "cash": cash,
+                "portfolio_value": value,
+                "positions": p.get_positions(),
+                "history": p.history[-5:],
+                "equity": p.equity_curve[-50:],
+                "equity_norm": manager.get_normalized_equity(p)[-50:],
+                "benchmark": bench[-50:],
+                "strategy_type": p.strategy_type,
+                "custom_prompt": p.custom_prompt,
+                "risk_alerts": p.risk_alerts[-5:] + p.diversification_warnings,
+                "stop_loss_pct": p.stop_loss_pct,
+                "take_profit_pct": p.take_profit_pct,
+                "max_drawdown_pct": p.max_drawdown_pct,
+                "diversification_score": p.diversification_score,
+                "correlation": p.correlation_matrix,
+            }
+        )
     return data
 
 
@@ -139,7 +142,9 @@ def preview_prompt(name: str):
         return "Unknown portfolio", 404
     original_prompt = temp_portfolio.custom_prompt
     temp_portfolio.custom_prompt = prompt
-    decision = get_strategy_from_openai(temp_portfolio, research, temp_portfolio.strategy_type)
+    decision = get_strategy_from_openai(
+        temp_portfolio, research, temp_portfolio.strategy_type
+    )
     temp_portfolio.custom_prompt = original_prompt
     return decision
 

@@ -69,6 +69,28 @@
             <li>No alerts.</li>
             {% endfor %}
         </ul>
+        <div class="mt-2">
+            <h3 class="font-semibold">Positions</h3>
+            <div class="flex space-x-2 mb-1 text-sm">
+                <input type="text" placeholder="Filter" id="pos-filter-{{ p.name }}" class="border px-1 py-0">
+                <select id="pos-sort-{{ p.name }}" class="border px-1 py-0">
+                    <option value="symbol">Symbol</option>
+                    <option value="pnl">PnL</option>
+                </select>
+            </div>
+            <table class="text-xs border w-full" id="positions-{{ p.name }}">
+                <thead>
+                    <tr>
+                        <th class="border px-1">Symbol</th>
+                        <th class="border px-1">Qty</th>
+                        <th class="border px-1">Price</th>
+                        <th class="border px-1">Avg</th>
+                        <th class="border px-1">PnL</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
         <div class="flex items-center justify-between mt-2">
             <h3 class="font-semibold">Trades</h3>
             <div class="space-x-2 text-sm">
