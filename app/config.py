@@ -19,4 +19,5 @@ def load_env():
         'OPENAI_API_KEY': os.getenv('OPENAI_API_KEY'),
         'FINNHUB_API_KEY': os.getenv('FINNHUB_API_KEY'),
         'NEWS_API_KEY': os.getenv('NEWS_API_KEY'),
+        'TRENDING_SOURCE': os.getenv('TRENDING_SOURCE', 'yahoo'),
     }

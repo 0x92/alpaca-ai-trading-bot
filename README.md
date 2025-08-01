@@ -47,7 +47,8 @@ This project is a multi-portfolio trading simulator built with Python. It uses A
    in the dashboard asks for these credentials – one key pair cannot be shared
    between multiple portfolios. The "Step" button accepts an optional comma-
    separated list of symbols. If left blank, the simulator will trade a set of
-   trending tickers automatically.
+   trending tickers automatically. Set `TRENDING_SOURCE=openai` in your `.env`
+   file to let ChatGPT suggest trending symbols instead of using Yahoo Finance.
 
 ## Custom Prompt Editor
 
