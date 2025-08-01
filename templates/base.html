@@ -12,8 +12,10 @@
     <script>
         const socket = io();
         const charts = {};
+        const tradeCharts = {};
         const positionsStore = {};
         const ordersStore = {};
+        const tradeStore = {};
 
         async function previewPrompt(name) {
             const form = document.querySelector(`#portfolio-${name} form[action$='set_prompt']`);
@@ -133,6 +135,78 @@
             }
         }
 
+        async function loadTradeHistory(name) {
+            try {
+                const resp = await fetch(`/api/portfolio/${name}/trade_history?limit=100`);
+                const data = await resp.json();
+                tradeStore[name] = data.trades || [];
+                renderTradeList(name);
+                renderTradeChart(name);
+                renderTradeSummary(name, data.summary);
+            } catch (err) {
+                console.error('history load failed', err);
+            }
+        }
+
+        function renderTradeList(name) {
+            const list = document.querySelector(`#portfolio-${name} .history`);
+            if (!list) return;
+            list.innerHTML = '';
+            const trades = tradeStore[name] || [];
+            if (trades.length === 0) {
+                list.innerHTML = '<li>No trades yet.</li>';
+                return;
+            }
+            trades.forEach((t, idx) => {
+                const item = document.createElement('li');
+                item.className = 'cursor-pointer';
+                item.dataset.index = idx;
+                item.textContent = `${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
+                item.addEventListener('click', () => showTradeDetails(name, idx));
+                list.appendChild(item);
+            });
+        }
+
+        function renderTradeChart(name) {
+            const trades = tradeStore[name] || [];
+            const labels = trades.map(t => t.submitted_at);
+            const values = trades.map(t => t.side === 'buy' ? t.qty : -t.qty);
+            const ctx = document.getElementById('trade-chart-' + name).getContext('2d');
+            if (!tradeCharts[name]) {
+                tradeCharts[name] = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Qty',
+                            data: values,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            } else {
+                tradeCharts[name].data.labels = labels;
+                tradeCharts[name].data.datasets[0].data = values;
+                tradeCharts[name].update();
+            }
+        }
+
+        function showTradeDetails(name, idx) {
+            const trade = (tradeStore[name] || [])[idx];
+            const el = document.getElementById('trade-details-' + name);
+            if (el && trade) {
+                el.textContent = JSON.stringify(trade, null, 2);
+            }
+        }
+
+        function renderTradeSummary(name, summary) {
+            const el = document.getElementById('trade-summary-' + name);
+            if (el && summary) {
+                el.textContent = `Trades: ${summary.count} | Buys: ${summary.buy_count} | Sells: ${summary.sell_count}`;
+            }
+        }
+
         function attachPositionHandlers(name) {
             const sortSelect = document.getElementById('pos-sort-' + name);
             const filterInput = document.getElementById('pos-filter-' + name);
@@ -153,17 +227,7 @@
                 el.querySelector('.portfolio_value').textContent = p.portfolio_value;
                 const divScoreEl = el.querySelector('.divscore');
                 if (divScoreEl) divScoreEl.textContent = p.diversification_score;
-                const historyList = el.querySelector('.history');
-                historyList.innerHTML = '';
-                if (p.history.length === 0) {
-                    historyList.innerHTML = '<li>No trades yet.</li>';
-                } else {
-                    p.history.forEach(t => {
-                        const item = document.createElement('li');
-                        item.textContent = `${t.symbol} ${t.side} ${t.qty} @ ${t.submitted_at}`;
-                        historyList.appendChild(item);
-                    });
-                }
+                loadTradeHistory(p.name);
 
                 const alertList = el.querySelector('.risk_alerts');
                 if (alertList) {
@@ -227,7 +291,10 @@
             if (dataElement) {
                 const portfolios = JSON.parse(dataElement.textContent);
                 updatePortfolios(portfolios);
-                portfolios.forEach(p => attachPositionHandlers(p.name));
+                portfolios.forEach(p => {
+                    attachPositionHandlers(p.name);
+                    loadTradeHistory(p.name);
+                });
             }
         });
     </script>

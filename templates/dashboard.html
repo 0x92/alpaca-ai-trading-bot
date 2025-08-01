@@ -113,13 +113,12 @@
                 <a href="{{ url_for('get_report', name=p.name) }}" class="text-blue-500">Report</a>
             </div>
         </div>
-        <ul class="list-disc list-inside history">
-            {% for trade in p.history %}
-            <li>{{ trade.get('symbol') }} {{ trade.get('side') }} {{ trade.get('qty') }} @ {{ trade.get('submitted_at') }}</li>
-            {% else %}
-            <li>No trades yet.</li>
-            {% endfor %}
-        </ul>
+        <div class="h-24 mt-1">
+            <canvas id="trade-chart-{{ p.name }}"></canvas>
+        </div>
+        <p id="trade-summary-{{ p.name }}" class="text-xs mt-1"></p>
+        <ul class="list-disc list-inside history cursor-pointer"></ul>
+        <pre id="trade-details-{{ p.name }}" class="text-xs bg-gray-100 mt-1"></pre>
     </div>
     {% endfor %}
 </div>

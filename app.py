@@ -161,6 +161,28 @@ def api_orders(name: str):
     return {"orders": []}
 
 
+@app.route("/api/portfolio/<name>/trade_history")
+def api_trade_history(name: str):
+    """Return trade history for a portfolio with optional filtering."""
+    symbol = request.args.get("symbol")
+    side = request.args.get("side")
+    limit = request.args.get("limit", type=int)
+    for p in manager.portfolios:
+        if p.name == name:
+            trades = p.history
+            if symbol:
+                trades = [t for t in trades if t.get("symbol") == symbol]
+            if side:
+                trades = [t for t in trades if t.get("side") == side]
+            if limit:
+                trades = trades[-limit:]
+            buy = sum(1 for t in trades if t.get("side") == "buy")
+            sell = sum(1 for t in trades if t.get("side") == "sell")
+            summary = {"count": len(trades), "buy_count": buy, "sell_count": sell}
+            return {"trades": trades, "summary": summary}
+    return {"trades": [], "summary": {}}
+
+
 @app.route("/portfolio/create", methods=["POST"])
 def create_portfolio():
     name = request.form.get("name")
