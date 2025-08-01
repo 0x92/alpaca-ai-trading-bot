@@ -110,6 +110,19 @@
             </table>
         </div>
         <div class="mt-2">
+            <h3 class="font-semibold">Activity</h3>
+            <div class="text-xs mb-1">
+                <label>Type
+                    <select id="activity-filter-{{ p.name }}" class="border px-1 py-0">
+                        <option value="all">all</option>
+                        <option value="trades">trades</option>
+                        <option value="alerts">alerts</option>
+                    </select>
+                </label>
+            </div>
+            <ul id="activity-log-{{ p.name }}" class="list-disc list-inside text-xs max-h-32 overflow-y-auto"></ul>
+        </div>
+        <div class="mt-2">
             <div class="flex items-center space-x-2 text-xs mb-1">
                 <label>PnL Interval
                     <select id="pnl-interval-{{ p.name }}" class="border px-1 py-0">

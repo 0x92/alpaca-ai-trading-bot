@@ -250,14 +250,14 @@
 
 ### Task 21: Aktivitätsfeed & Log-Viewer
 
-- [ ] **Backend**:  
-    - [ ] Logik, die alle Aktionen (Trades, Orders, Research, Strategie-Wechsel) pro Portfolio als Log speichert.
-    - [ ] API-Route `/api/portfolio/<name>/activity_log?type=all|trades|alerts`
+- [x] **Backend**:
+    - [x] Logik, die alle Aktionen (Trades, Orders, Research, Strategie-Wechsel) pro Portfolio als Log speichert.
+    - [x] API-Route `/api/portfolio/<name>/activity_log?type=all|trades|alerts`
       Liefert chronologischen Feed.
-    - [ ] Option: Events per SocketIO pushen.
-- [ ] **Frontend**:  
-    - [ ] Aktivitätsfeed im Dashboard, filterbar nach Typ.
-    - [ ] Live-Update ohne Reload.
+    - [x] Option: Events per SocketIO pushen.
+- [x] **Frontend**:
+    - [x] Aktivitätsfeed im Dashboard, filterbar nach Typ.
+    - [x] Live-Update ohne Reload.
 
 ---
 

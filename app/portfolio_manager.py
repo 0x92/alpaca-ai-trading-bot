@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import List, Dict, Callable, Optional
 from pathlib import Path
 from datetime import datetime
 
@@ -28,6 +28,15 @@ ENV = load_env()
 openai.api_key = ENV.get("OPENAI_API_KEY")
 
 
+activity_callback: Optional[Callable[[str, Dict], None]] = None
+
+
+def set_activity_callback(cb: Optional[Callable[[str, Dict], None]]) -> None:
+    """Register a callback for activity log events."""
+    global activity_callback
+    activity_callback = cb
+
+
 @dataclass
 class Portfolio:
     """Simple wrapper around Alpaca TradingClient for a single portfolio."""
@@ -51,6 +60,7 @@ class Portfolio:
     correlation_matrix: Dict[str, Dict[str, float]] = field(default_factory=dict)
     diversification_score: float = 0.0
     diversification_warnings: List[str] = field(default_factory=list)
+    activity_log: List[Dict] = field(default_factory=list)
     initial_value: float | None = None
     high_water: float = 0.0
 
@@ -59,6 +69,20 @@ class Portfolio:
         self.client = TradingClient(
             self.api_key, self.secret_key, paper=paper, url_override=self.base_url
         )
+
+    def log_event(self, event_type: str, message: str) -> None:
+        """Store an activity log entry and trigger callback."""
+        entry = {
+            "time": datetime.utcnow().isoformat(),
+            "type": event_type,
+            "message": message,
+        }
+        self.activity_log.append(entry)
+        if activity_callback:
+            try:
+                activity_callback(self.name, entry)
+            except Exception:
+                pass
 
     def get_account_info(self):
         """Return basic account information as a dictionary."""
@@ -109,6 +133,7 @@ class Portfolio:
                     self.holdings.pop(symbol, None)
                     self.avg_prices.pop(symbol, None)
             self.history.append(order_dict)
+            self.log_event("trade", f"{side} {qty} {symbol}")
             return order
         except Exception as exc:
             logger.error("Order failed for %s: %s", self.name, exc)
@@ -259,6 +284,7 @@ class Portfolio:
         if drawdown >= self.max_drawdown_pct:
             alert = f"Max drawdown {drawdown:.2%} exceeded"
             self.risk_alerts.append(alert)
+            self.log_event("alert", alert)
             if (
                 not simulate
                 and self.api_key
@@ -278,6 +304,7 @@ class Portfolio:
             if change <= -self.stop_loss_pct:
                 alert = f"Stop-loss triggered for {symbol}"
                 self.risk_alerts.append(alert)
+                self.log_event("alert", alert)
                 if not simulate:
                     try:
                         self.place_order(symbol, qty, "sell")
@@ -290,6 +317,7 @@ class Portfolio:
             elif change >= self.take_profit_pct:
                 alert = f"Take-profit triggered for {symbol}"
                 self.risk_alerts.append(alert)
+                self.log_event("alert", alert)
                 if not simulate:
                     try:
                         self.place_order(symbol, qty, "sell")
@@ -422,7 +450,9 @@ class MultiPortfolioManager:
         self.update_benchmark()
         for p in self.portfolios:
             research = get_research(symbol)
+            p.log_event("research", f"fetched research for {symbol}")
             decision = get_strategy_from_openai(p, research, p.strategy_type)
+            p.log_event("decision", decision)
             logger.info("%s decision %s", p.name, decision)
             if decision.lower().startswith("buy"):
                 qty = p.smart_allocation(symbol)
