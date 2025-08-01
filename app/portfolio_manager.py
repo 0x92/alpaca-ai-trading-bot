@@ -63,6 +63,9 @@ class Portfolio:
     activity_log: List[Dict] = field(default_factory=list)
     initial_value: float | None = None
     high_water: float = 0.0
+    last_prompt: str = ""
+    last_research: Dict | None = field(default_factory=dict)
+    last_response: str = ""
 
     def __post_init__(self) -> None:
         paper = "paper" in self.base_url
@@ -132,6 +135,11 @@ class Portfolio:
                 if symbol in self.holdings:
                     self.holdings.pop(symbol, None)
                     self.avg_prices.pop(symbol, None)
+            order_dict["decision_explainer"] = {
+                "prompt": self.last_prompt,
+                "research": self.last_research,
+                "response": self.last_response,
+            }
             self.history.append(order_dict)
             self.log_event("trade", f"{side} {qty} {symbol}")
             return order
@@ -356,18 +364,24 @@ def get_strategy_from_openai(
             f"Portfolio: {json.dumps(account)}\n"
             f"Research: {json.dumps(research)}"
         )
+    portfolio.last_prompt = prompt
+    portfolio.last_research = research
     try:
         resp = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
         )
-        return resp["choices"][0]["message"]["content"].strip()
+        decision = resp["choices"][0]["message"]["content"].strip()
+        portfolio.last_response = decision
+        return decision
     except openai.error.RateLimitError:
         logger.warning("OpenAI rate limit reached for %s", portfolio.name)
+        portfolio.last_response = "rate_limit"
         return "rate_limit"
     except Exception as exc:
         logger.error("OpenAI error for %s: %s", portfolio.name, exc)
+        portfolio.last_response = f"error: {exc}"
         return f"error: {exc}"
 
 

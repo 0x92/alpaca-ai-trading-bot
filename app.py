@@ -256,6 +256,18 @@ def api_trade_price_history(trade_id: str):
     return {"symbol": "", "prices": []}
 
 
+@app.route("/api/trade/<trade_id>/decision_explainer")
+def api_trade_decision_explainer(trade_id: str):
+    """Return stored prompt, research and AI response for a trade."""
+    for p in manager.portfolios:
+        for trade in p.history:
+            tid = str(trade.get("id") or trade.get("client_order_id"))
+            if tid == trade_id:
+                data = trade.get("decision_explainer") or {}
+                return data
+    return {}
+
+
 @app.route("/portfolio/create", methods=["POST"])
 def create_portfolio():
     name = request.form.get("name")
