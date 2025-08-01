@@ -213,13 +213,13 @@
 
 ### Task 18: Kurs- und Performance-Chart je Trade
 
-- [ ] **Backend**:  
-    - [ ] API-Route `/api/trade/<id>/price_history`  
+- [x] **Backend**:
+    - [x] API-Route `/api/trade/<id>/price_history`
       Liefert den Kursverlauf des gehandelten Assets für den Zeitraum des Trades.
-    - [ ] Backend-Logik: Hole historische Preisdaten von Datenanbieter (z.B. Yahoo, Finnhub).
-- [ ] **Frontend**:  
-    - [ ] Chart.js für Kursverlauf pro Trade/Position.
-    - [ ] Visualisierung von Einstiegs-, Ausstiegs-, SL/TP-Punkten und aktuellem Kurs.
+    - [x] Backend-Logik: Hole historische Preisdaten von Datenanbieter (z.B. Yahoo, Finnhub).
+- [x] **Frontend**:
+    - [x] Chart.js für Kursverlauf pro Trade/Position.
+    - [x] Visualisierung von Einstiegs-, Ausstiegs-, SL/TP-Punkten und aktuellem Kurs.
 
 ---
 

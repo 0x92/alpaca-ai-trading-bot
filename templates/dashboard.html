@@ -119,6 +119,9 @@
         <p id="trade-summary-{{ p.name }}" class="text-xs mt-1"></p>
         <ul class="list-disc list-inside history cursor-pointer"></ul>
         <pre id="trade-details-{{ p.name }}" class="text-xs bg-gray-100 mt-1"></pre>
+        <div class="h-32 mt-1">
+            <canvas id="trade-price-{{ p.name }}"></canvas>
+        </div>
     </div>
     {% endfor %}
 </div>
