@@ -300,12 +300,12 @@
 
 ### Task 25: Multi-Dashboard-View & Bot-Vergleich
 
-- [ ] **Backend**:  
-    - [ ] API-Route `/api/portfolios/compare?names=Bot1,Bot2`
+- [x] **Backend**:
+    - [x] API-Route `/api/portfolios/compare?names=Bot1,Bot2`
       Liefert Kernmetriken mehrerer Bots für Vergleich (Equity, PnL, Allokation, Risiko etc.).
-- [ ] **Frontend**:  
-    - [ ] Split View/Switch zwischen mehreren Dashboards.
-    - [ ] Heatmap/Tabellen für direkten Vergleich.
+- [x] **Frontend**:
+    - [x] Split View/Switch zwischen mehreren Dashboards.
+    - [x] Heatmap/Tabellen für direkten Vergleich.
 
 ---
 
