@@ -13,6 +13,7 @@
         const socket = io();
         const charts = {};
         const tradeCharts = {};
+        const tradePriceCharts = {};
         const positionsStore = {};
         const ordersStore = {};
         const tradeStore = {};
@@ -192,11 +193,57 @@
             }
         }
 
-        function showTradeDetails(name, idx) {
+        async function showTradeDetails(name, idx) {
             const trade = (tradeStore[name] || [])[idx];
             const el = document.getElementById('trade-details-' + name);
             if (el && trade) {
                 el.textContent = JSON.stringify(trade, null, 2);
+            }
+            const tid = trade.id || trade.client_order_id;
+            if (!tid) return;
+            try {
+                const resp = await fetch(`/api/trade/${tid}/price_history`);
+                const data = await resp.json();
+                renderTradePriceChart(name, data.prices || [], trade);
+            } catch (err) {
+                console.error('price history failed', err);
+            }
+        }
+
+        function renderTradePriceChart(name, prices, trade) {
+            const ctx = document.getElementById('trade-price-' + name).getContext('2d');
+            const labels = prices.map(p => p.time);
+            const values = prices.map(p => p.close);
+            const entry = parseFloat(trade.filled_avg_price || trade.limit_price || 0);
+            const exit = entry; // simple placeholder
+            const datasets = [
+                {
+                    label: 'Close',
+                    data: values,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1,
+                }
+            ];
+            if (entry) {
+                datasets.push({
+                    label: 'Entry',
+                    data: values.map(() => entry),
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                });
+            }
+            if (!tradePriceCharts[name]) {
+                tradePriceCharts[name] = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: datasets },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            } else {
+                const chart = tradePriceCharts[name];
+                chart.data.labels = labels;
+                chart.data.datasets = datasets;
+                chart.update();
             }
         }
 

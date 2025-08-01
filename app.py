@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timedelta
 
 from flask import Flask, render_template, redirect, url_for, request, send_file
 from flask_socketio import SocketIO
@@ -14,6 +15,7 @@ from app.portfolio_manager import (
 from app.research_engine import get_research
 from app.reporting import export_trades_csv, generate_reports
 from app.diversification import analyze_portfolio
+from app.price_history import get_price_history
 
 ENV = load_env()
 API_KEY = ENV.get("ALPACA_API_KEY")
@@ -181,6 +183,34 @@ def api_trade_history(name: str):
             summary = {"count": len(trades), "buy_count": buy, "sell_count": sell}
             return {"trades": trades, "summary": summary}
     return {"trades": [], "summary": {}}
+
+
+@app.route("/api/trade/<trade_id>/price_history")
+def api_trade_price_history(trade_id: str):
+    """Return price history for a trade identified by its id."""
+    for p in manager.portfolios:
+        for trade in p.history:
+            tid = str(trade.get("id") or trade.get("client_order_id"))
+            if tid == trade_id:
+                symbol = trade.get("symbol")
+                submitted = trade.get("submitted_at") or trade.get("created_at")
+                filled = trade.get("filled_at") or submitted
+                if not symbol or not submitted:
+                    break
+                try:
+                    start = datetime.fromisoformat(str(submitted))
+                except ValueError:
+                    start = datetime.utcnow()
+                try:
+                    end = datetime.fromisoformat(str(filled))
+                except ValueError:
+                    end = start
+                # fetch a few extra days around the trade
+                start = start - timedelta(days=1)
+                end = end + timedelta(days=1)
+                prices = get_price_history(symbol, start, end)
+                return {"symbol": symbol, "prices": prices}
+    return {"symbol": "", "prices": []}
 
 
 @app.route("/portfolio/create", methods=["POST"])
